@@ -1,10 +1,14 @@
-:root {
-  --color-apex-yellow: #FFD93B;
-  --color-black: #000000;
-  --color-white: #ffffff;
-  --color-text-muted: #bbbbbb;
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+@import "tailwindcss";
+
+/* Import Inter only */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+@theme {
+  --font-inter: "Inter", sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-body); background: var(--color-black); color: var(--color-white); }
+
+@layer base {
+  body {
+    @apply font-inter text-[#1A1A1A] bg-[#F5F5F5];
+  }
+}
