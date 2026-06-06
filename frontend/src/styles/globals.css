@@ -1,14 +1,51 @@
 @import "tailwindcss";
 
-/* Import Inter only */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
-@theme {
-  --font-inter: "Inter", sans-serif;
+/* ── Local Fonts (no Google Fonts dependency) ──────────────────────────────── */
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('/fonts/BebasNeue-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Design Tokens ─────────────────────────────────────────────────────────── */
+@theme {
+  --font-bebas: 'Bebas Neue', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --color-apex-yellow: #FFD93B;
+  --color-black: #0a0a0a;
+  --color-white: #ffffff;
+  --color-muted: #888888;
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────────── */
 @layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
-    @apply font-inter text-[#1A1A1A] bg-[#F5F5F5];
+    @apply font-inter text-white bg-[#0a0a0a];
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
