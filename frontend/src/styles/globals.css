@@ -1,41 +1,65 @@
 @import "tailwindcss";
 
-/* ── Local Fonts (no Google Fonts dependency) ──────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Local Fonts (Performance-first, no external dependencies)
+───────────────────────────────────────────────────────────── */
+
 @font-face {
-  font-family: 'Bebas Neue';
-  src: url('/fonts/BebasNeue-Regular.woff2') format('woff2');
+  font-family: "Inter";
+  src: url("/fonts/Inter-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Inter';
-  src: url('/fonts/Inter-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/Inter-Bold.woff2') format('woff2');
+  font-family: "Inter";
+  src: url("/fonts/Inter-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
-/* ── Design Tokens ─────────────────────────────────────────────────────────── */
-@theme {
-  --font-bebas: 'Bebas Neue', sans-serif;
-  --font-inter: 'Inter', sans-serif;
-  --color-apex-yellow: #FFD93B;
-  --color-black: #0a0a0a;
-  --color-white: #ffffff;
-  --color-muted: #888888;
+/* Optional future font (Geist ready, not required now) */
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* ── Base ───────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Design Tokens (ApexWeb360 / ApexLaunch GEO System)
+───────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Fonts */
+  --font-inter: "Inter", system-ui, sans-serif;
+  --font-geist: "Geist", system-ui, sans-serif;
+
+  /* Core Background System */
+  --color-bg: #0a0a0a;
+  --color-surface: #111111;
+
+  /* Text */
+  --color-white: #fafafa;
+  --color-muted: rgba(255, 255, 255, 0.65);
+
+  /* Brand */
+  --color-accent: #007fff;
+
+  /* Rare highlight (use sparingly only) */
+  --color-highlight: #ffd93b;
+
+  /* Borders / Dividers */
+  --color-border: rgba(255, 255, 255, 0.08);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Base Styles
+───────────────────────────────────────────────────────────── */
+
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;
@@ -43,9 +67,113 @@
     padding: 0;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply font-inter text-white bg-[#0a0a0a];
+    @apply font-inter bg-[var(--color-bg)] text-[var(--color-white)];
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Utilities (Apex UI System)
+───────────────────────────────────────────────────────────── */
+
+@layer utilities {
+
+  /* ── Cards ───────────────────────────── */
+  .apex-card {
+    background: var(--color-white);
+    color: black;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  .apex-card-dark {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+  }
+
+  /* ── Text helpers ─────────────────────── */
+  .text-accent {
+    color: var(--color-accent);
+  }
+
+  .text-highlight {
+    color: var(--color-highlight);
+  }
+
+  /* ── Interaction polish ──────────────── */
+  .hover-lift {
+    transition: transform 250ms ease, opacity 250ms ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* ── Layout helpers ───────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--color-border);
+    width: 100%;
+  }
+
+  /* ─────────────────────────────────────────────
+     FRAMER-LEVEL MOTION SYSTEM (IMPORTANT)
+  ───────────────────────────────────────────── */
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+  /* subtle pulse for system “AI activity” feel */
+  .animate-soft-pulse {
+    animation: softPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes softPulse {
+    0% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.6;
+    }
   }
 }

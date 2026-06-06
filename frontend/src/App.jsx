@@ -1,9 +1,9 @@
-import LandingHero from './components/LandingHero';
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <div className="w-full min-h-screen bg-[#F5F5F5]">
-      <LandingHero />
+    <div>
+      <Home />
     </div>
   );
 }
