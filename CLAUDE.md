@@ -4,14 +4,13 @@
 
 ## Project Overview
 - **Name:** ApexLaunch
-- **Purpose:** [One sentence description]
+- **Purpose:** Internal launch scaffold for ApexWeb360 client projects, wiring FastAPI, React, Supabase, and Stripe into a deployable baseline.
 - **Stack:** FastAPI + React + Supabase + Stripe
 
 ## Local Overrides
-# Add any project-specific deviations from global standards here.
-# If empty, all global rules apply as-is.
+None, all global standards from `~/CODING/CLAUDE.md` apply as-is.
 
 ## Project-Specific Notes
-- [ ] Add route-specific logic notes here
-- [ ] Add service-specific constraints here
-- [ ] Add any design overrides (if different from global Code SS)
+- Routes live in `backend/routes/`, services in `backend/services/`, no exceptions.
+- Frontend fetch calls go in `frontend/src/services/` only.
+- Framer Motion required for all animated UI elements.
