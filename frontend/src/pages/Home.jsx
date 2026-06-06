@@ -1,10 +1,10 @@
-import Hero from "../components/Hero/Hero";
-import SearchShift from "../components/Sections/SearchShift";
-import VisibilityScore from "../components/Sections/VisibilityScore";
-import LiveCitations from "../components/Sections/LiveCitations";
-import HowItWorks from "../components/Sections/HowItWorks";
-import Results from "../components/Sections/Results";
-import CTA from "../components/Sections/CTA";
+import Hero from "../components/hero/Hero";
+import SearchShift from "../components/sections/SearchShift";
+import VisibilityScore from "../components/sections/VisibilityScore";
+import LiveCitations from "../components/sections/LiveCitations";
+import HowItWorks from "../components/sections/HowItWorks";
+import Results from "../components/sections/Results";
+import CTA from "../components/sections/CTA";
 
 export default function Home() {
   return (
