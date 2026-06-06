@@ -1,7 +1,7 @@
 import Hero from "../components/hero/Hero";
 import SearchShift from "../components/sections/SearchShift";
 import VisibilityScore from "../components/sections/VisibilityScore";
-import Citations from "../components/Sections/LiveCitations";
+import LiveCitations from "../components/sections/LiveCitations";
 import HowItWorks from "../components/sections/HowItWorks";
 import Results from "../components/sections/Results";
 import CTA from "../components/sections/CTA";
@@ -16,7 +16,7 @@ export default function Home() {
 
         <SearchShift />
         <VisibilityScore />
-        <Citations />
+        <LiveCitations />
         <HowItWorks />
         <Results />
         <CTA />
