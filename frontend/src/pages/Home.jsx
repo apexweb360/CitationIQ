@@ -1,21 +1,25 @@
 import Hero from "../components/Hero/Hero";
+import Navbar from "../components/ui/Navbar";
 import { useNavigate } from "react-router-dom";
 
-const CYAN = "#22D3EE";
-const PURPLE = "#8B5CF6";
+// ── Code CIQ brand colors (exact spec) ──────────────────────────────────────
+const CYAN   = "#00E5FF";   // --ciq-cyan
+const BLUE   = "#3D6BFF";   // --ciq-blue
+const PURPLE = "#A742FF";   // --ciq-purple
 const YELLOW = "#ffd93b";
-const AMBER = "#EF9F27";
-const RED = "#E24B4A";
+const AMBER  = "#EF9F27";
+const RED    = "#E24B4A";
 
+// Gradient always L→R per Code CIQ spec (never 135deg)
 const gradText = {
-  background: `linear-gradient(135deg, ${CYAN} 0%, ${PURPLE} 100%)`,
+  background: `linear-gradient(to right, ${CYAN}, ${BLUE}, ${PURPLE})`,
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
   backgroundClip: "text",
 };
 
 const gradBg = {
-  background: `linear-gradient(135deg, ${CYAN}, ${PURPLE})`,
+  background: `linear-gradient(to right, ${CYAN}, ${BLUE}, ${PURPLE})`,
 };
 
 // ── Score Preview ──────────────────────────────────────────────────────────────
@@ -52,7 +56,7 @@ function ScorePreview() {
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
         <span style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(245,247,250,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>
-          Sample audit — apexweb360.com
+          Sample audit — yourbrand.com
         </span>
         <span style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 700, color: "#fff" }}>
           61 <span style={{ fontSize: 14, color: "rgba(245,247,250,0.3)" }}>/ 100</span>
@@ -319,6 +323,7 @@ function CTA() {
 export default function Home() {
   return (
     <main style={{ background: "#040c14", color: "#f5f7fa", minHeight: "100vh", overflowX: "hidden" }}>
+      <Navbar />
       <Hero />
       <div style={{ height: "0.5px", background: "rgba(255,255,255,0.06)", margin: "0 2rem 3rem" }} />
       <ScorePreview />

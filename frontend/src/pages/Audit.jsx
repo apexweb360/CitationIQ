@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAudit } from "../hooks/useAudit";
 import AuditForm from "../components/audit/AuditForm";
 import AuditProgress from "../components/audit/AuditProgress";
 import AuditReport from "../components/audit/AuditReport";
+import Navbar from "../components/ui/Navbar";
 
 export default function Audit() {
   const { submit, reset, phase, progress, result, error } = useAudit();
@@ -17,20 +17,10 @@ export default function Audit() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Nav bar */}
-      <nav className="flex items-center justify-between px-6 py-5 border-b border-[var(--color-border)]">
-        <Link to="/" className="text-lg font-bold tracking-tight hover:opacity-80 transition-opacity">
-          Citation<span className="text-[#007FFF]">IQ</span>
-        </Link>
-        {phase !== "idle" && phase !== "submitting" && (
-          <button
-            onClick={reset}
-            className="text-xs text-[var(--color-muted)] hover:text-white transition-colors"
-          >
-            ← Start over
-          </button>
-        )}
-      </nav>
+      <Navbar
+        showReset={phase !== "idle" && phase !== "submitting"}
+        onReset={reset}
+      />
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-16">
@@ -98,8 +88,8 @@ export default function Audit() {
               </p>
               <button
                 onClick={reset}
-                className="px-6 py-3 bg-[#007FFF] rounded-xl text-sm font-semibold
-                           hover:opacity-90 transition-opacity"
+                className="px-6 py-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+                style={{ background: "linear-gradient(to right, #00E5FF, #3D6BFF, #A742FF)" }}
               >
                 Try again
               </button>

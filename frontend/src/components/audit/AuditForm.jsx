@@ -31,7 +31,7 @@ function TagInput({ tags, setTags, placeholder, id }) {
         <span
           key={tag}
           className="flex items-center gap-1 px-3 py-1 rounded-lg text-sm
-                     bg-[#007FFF]/15 text-[#007FFF] border border-[#007FFF]/30"
+                     bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30"
         >
           {tag}
           <button
@@ -63,7 +63,7 @@ function TagInput({ tags, setTags, placeholder, id }) {
 const fieldClass = `
   w-full px-4 py-3 rounded-xl border border-[var(--color-border)]
   bg-[var(--color-surface)] text-white placeholder-[var(--color-muted)]
-  outline-none focus:border-[#007FFF] transition-colors text-sm
+  outline-none focus:border-[#00E5FF] transition-colors text-sm
 `.trim();
 
 const labelClass = "block text-sm font-medium text-[var(--color-muted)] mb-2";
@@ -106,7 +106,7 @@ export default function AuditForm({ onSubmit, isLoading }) {
       {/* Business name */}
       <div>
         <label htmlFor="business-name" className={labelClass}>
-          Business name <span className="text-[#007FFF]">*</span>
+          Business name <span className="text-[#00E5FF]">*</span>
         </label>
         <input
           id="business-name"
@@ -122,7 +122,7 @@ export default function AuditForm({ onSubmit, isLoading }) {
       {/* Website */}
       <div>
         <label htmlFor="website" className={labelClass}>
-          Website <span className="text-[#007FFF]">*</span>
+          Website <span className="text-[#00E5FF]">*</span>
         </label>
         <input
           id="website"
@@ -138,7 +138,7 @@ export default function AuditForm({ onSubmit, isLoading }) {
       {/* Service area */}
       <div>
         <label htmlFor="service-area" className={labelClass}>
-          Service area <span className="text-[#007FFF]">*</span>
+          Service area <span className="text-[#00E5FF]">*</span>
         </label>
         <input
           id="service-area"
@@ -154,7 +154,7 @@ export default function AuditForm({ onSubmit, isLoading }) {
       {/* Services — tag input */}
       <div>
         <label htmlFor="services" className={labelClass}>
-          Services <span className="text-[#007FFF]">*</span>
+          Services <span className="text-[#00E5FF]">*</span>
           <span className="ml-2 font-normal text-xs opacity-60">Press Enter or comma to add</span>
         </label>
         <TagInput
@@ -187,9 +187,10 @@ export default function AuditForm({ onSubmit, isLoading }) {
         whileTap={canSubmit ? { scale: 0.98 } : {}}
         className={`w-full py-4 rounded-xl font-semibold text-sm transition-all duration-200
           ${canSubmit
-            ? "bg-[#007FFF] text-white hover:opacity-90 cursor-pointer"
+            ? "text-white hover:opacity-90 cursor-pointer"
             : "bg-[var(--color-surface)] text-[var(--color-muted)] border border-[var(--color-border)] cursor-not-allowed"
           }`}
+        style={canSubmit ? { background: "linear-gradient(to right, #00E5FF, #3D6BFF, #A742FF)" } : {}}
       >
         {isLoading ? "Submitting…" : "Run Free Audit →"}
       </motion.button>

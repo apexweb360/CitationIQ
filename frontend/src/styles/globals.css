@@ -30,6 +30,42 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Code CIQ — CitationIQ Brand Tokens
+   Scoped to --ciq-* namespace. Does NOT override Apex tokens.
+───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Gradient stops (always L→R: cyan → blue → purple) */
+  --ciq-cyan:    #00E5FF;
+  --ciq-blue:    #3D6BFF;
+  --ciq-purple:  #A742FF;
+
+  /* Tagline words */
+  --ciq-know:    #A8F0FF;   /* "KNOW."    light cyan  */
+  --ciq-outrank: #A742FF;   /* "OUTRANK." purple      */
+
+  /* Brand background (pure black for all logo placements) */
+  --ciq-black:   #000000;
+
+  /* Gradient string */
+  --ciq-gradient: linear-gradient(to right, var(--ciq-cyan), var(--ciq-blue), var(--ciq-purple));
+}
+
+/* Gradient text utility */
+.ciq-gradient-text {
+  background: var(--ciq-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* TikTok-only glow variant (CIQ-TT) */
+.ciq-glow {
+  filter: drop-shadow(0 0 12px rgba(167, 66, 255, 0.5))
+          drop-shadow(0 0 24px rgba(0, 229, 255, 0.3));
+}
+
+/* ─────────────────────────────────────────────────────────────
    Design Tokens (ApexWeb360 / ApexLaunch GEO System)
 ───────────────────────────────────────────────────────────── */
 

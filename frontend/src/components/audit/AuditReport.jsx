@@ -90,7 +90,7 @@ function Section({ title, children }) {
 function Pill({ text, variant = "default" }) {
   const variants = {
     default: "bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-muted)]",
-    action:  "bg-[#007FFF]/10 border-[#007FFF]/30 text-[#007FFF]",
+    action:  "border-[rgba(0,229,255,0.3)] text-[#00E5FF]",
     missing: "bg-red-500/10 border-red-500/30 text-red-400",
   };
   return (
@@ -214,9 +214,10 @@ export default function AuditReport({ result, onReset }) {
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className="flex gap-3 p-3 rounded-xl border border-[#007FFF]/20 bg-[#007FFF]/05"
+                className="flex gap-3 p-3 rounded-xl"
+                style={{ border: "0.5px solid rgba(0,229,255,0.2)", background: "rgba(0,229,255,0.04)" }}
               >
-                <span className="text-[#007FFF] font-bold text-sm mt-0.5 shrink-0">
+                <span className="text-[#00E5FF] font-bold text-sm mt-0.5 shrink-0">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="text-sm text-[var(--color-muted)]">{action}</span>
@@ -248,8 +249,8 @@ export default function AuditReport({ result, onReset }) {
           Run another audit
         </button>
         <button
-          className="flex-1 py-3 rounded-xl bg-[#007FFF] text-white text-sm
-                     font-semibold hover:opacity-90 transition-opacity"
+          className="flex-1 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+          style={{ background: "linear-gradient(to right, #00E5FF, #3D6BFF, #A742FF)" }}
           onClick={() => window.print()}
         >
           Save report

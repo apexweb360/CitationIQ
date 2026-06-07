@@ -48,7 +48,8 @@ export default function AuditProgress({ progress, businessName }) {
         </div>
         <div className="h-2 rounded-full bg-[var(--color-surface)] overflow-hidden border border-[var(--color-border)]">
           <motion.div
-            className="h-full rounded-full bg-[#007FFF]"
+            className="h-full rounded-full"
+            style={{ background: "linear-gradient(to right, #00E5FF, #3D6BFF, #A742FF)" }}
             initial={{ width: "0%" }}
             animate={{ width: `${progress}%` }}
             transition={{ ease: "easeOut", duration: 0.4 }}
