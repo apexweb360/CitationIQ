@@ -9,14 +9,18 @@ const GPT_TEXT    = "#ececec";
 const GPT_MUTED   = "#8e8ea0";
 const GPT_BORDER  = "rgba(255,255,255,0.07)";
 
+// ── User question — typed out character by character ─────────
+const QUESTION   = "I just got into a car accident. Which personal injury law firms do you recommend in Houston, TX?";
+const TYPING_MS  = 21; // ~2 seconds total for the full question
+
 // ── Firms revealed in the response ──────────────────────────
 const FIRMS = [
-  { name: "Sullivan, Bennett & Feiner",  platforms: 5, color: "#22C55E" },
+  { name: "Sullivan, Bennett & Feiner",       platforms: 5, color: "#22C55E" },
   { name: "Morgan & Harrison Injury Counsel", platforms: 3, color: "#F59E0B" },
-  { name: "Yaffa Cohen, LLP", platforms: 1, color: "#6B7280" },
+  { name: "Yaffa Cohen, LLP",                 platforms: 1, color: "#6B7280" },
 ];
 
-// ── OpenAI / ChatGPT logo SVG (simplified) ──────────────────
+// ── OpenAI / ChatGPT logo SVG ────────────────────────────────
 function GPTLogo({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 41 41" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -44,20 +48,36 @@ function TypingDots() {
 
 // ── Main component ───────────────────────────────────────────
 export default function AIChatMock() {
-  const [cycle, setCycle] = useState(0);
-  const [phase, setPhase] = useState(0);
+  const [cycle, setCycle]           = useState(0);
+  const [phase, setPhase]           = useState(0);
+  const [typedCount, setTypedCount] = useState(0);
 
-  // Phase timeline:
-  // 0 — user message visible, GPT idle
-  // 1 — typing dots
-  // 2 — intro sentence appears
-  // 3,4,5 — firms revealed one by one
-  // 6 — "not cited" warning appears
-  // → reset via new cycle
+  // Phase timeline (all offsets include the ~2s typing lead-in):
+  // 0      → question starts typing character by character
+  // ~2.1s  → question fully typed, cursor blinks then fades
+  // 3900ms → GPT bouncing dots appear
+  // 5200ms → intro sentence appears
+  // 6100ms → firm 1
+  // 6950ms → firm 2
+  // 7800ms → firm 3
+  // 8900ms → "not cited" warning
+  // 13000ms → full reset, new cycle
   useEffect(() => {
-    // Skip the cycle entirely when the tab is hidden — no wasted timers
     if (document.hidden) return;
 
+    // Reset both counters at the top of every cycle
+    setTypedCount(0);
+    setPhase(0);
+
+    // Typewriter: one character every TYPING_MS until question is fully revealed
+    let count = 0;
+    const typeInterval = setInterval(() => {
+      count++;
+      setTypedCount(count);
+      if (count >= QUESTION.length) clearInterval(typeInterval);
+    }, TYPING_MS);
+
+    // Phase progression
     const t = [
       setTimeout(() => setPhase(1), 3900),
       setTimeout(() => setPhase(2), 5200),
@@ -65,12 +85,20 @@ export default function AIChatMock() {
       setTimeout(() => setPhase(4), 6950),
       setTimeout(() => setPhase(5), 7800),
       setTimeout(() => setPhase(6), 8900),
-      setTimeout(() => { setPhase(0); setCycle((c) => c + 1); }, 13000),
+      setTimeout(() => {
+        setPhase(0);
+        setTypedCount(0);
+        setCycle((c) => c + 1);
+      }, 13000),
     ];
-    return () => t.forEach(clearTimeout);
+
+    return () => {
+      clearInterval(typeInterval);
+      t.forEach(clearTimeout);
+    };
   }, [cycle]);
 
-  // Resume the loop when the user comes back to the tab
+  // Resume animation when user returns to the tab
   useEffect(() => {
     const onVisible = () => {
       if (!document.hidden) setCycle((c) => c + 1);
@@ -78,6 +106,9 @@ export default function AIChatMock() {
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
+
+  const isTyping  = typedCount < QUESTION.length;
+  const visibleText = QUESTION.slice(0, typedCount);
 
   return (
     <div
@@ -96,7 +127,6 @@ export default function AIChatMock() {
         className="flex items-center justify-between px-4 py-3 border-b"
         style={{ background: GPT_SIDEBAR, borderColor: GPT_BORDER }}
       >
-        {/* Left: logo + name + model badge */}
         <div className="flex items-center gap-2.5">
           <div style={{ color: GPT_TEXT }}>
             <GPTLogo size={18} />
@@ -115,10 +145,7 @@ export default function AIChatMock() {
             GPT-4o
           </span>
         </div>
-
-        {/* Right: window controls (decorative) */}
         <div className="flex items-center gap-2">
-          {/* share */}
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: GPT_MUTED }}>
             <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="1.8"/>
             <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/>
@@ -126,7 +153,6 @@ export default function AIChatMock() {
             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
           </svg>
-          {/* edit */}
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: GPT_MUTED }}>
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -134,10 +160,10 @@ export default function AIChatMock() {
         </div>
       </div>
 
-      {/* ── CHAT BODY ── */}
-      <div className="px-5 pt-6 pb-4 space-y-6" style={{ minHeight: 340 }}>
+      {/* ── CHAT BODY ── fixed height = fully-expanded final state, overflow hidden prevents any resize ── */}
+      <div className="px-5 pt-6 pb-4 space-y-6" style={{ height: 420, overflow: "hidden" }}>
 
-        {/* USER MESSAGE */}
+        {/* USER MESSAGE — types out character by character */}
         <div className="flex items-end justify-end gap-3">
           <div
             className="text-sm px-4 py-3 rounded-2xl leading-relaxed"
@@ -146,9 +172,27 @@ export default function AIChatMock() {
               color: GPT_TEXT,
               borderBottomRightRadius: 6,
               maxWidth: "82%",
+              // Pre-sized to the fully-typed 2-line height — no layout jump during typing
+              minHeight: "4.25rem",
             }}
           >
-            I just got into a car accident. Which personal injury law firms do you recommend in Houston, TX?
+            {visibleText}
+            {/* Blinking cursor while typing */}
+            {isTyping && (
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.48, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
+                style={{
+                  display: "inline-block",
+                  width: 2,
+                  height: "0.85em",
+                  background: GPT_TEXT,
+                  borderRadius: 1,
+                  marginLeft: 2,
+                  verticalAlign: "text-bottom",
+                }}
+              />
+            )}
           </div>
           {/* User avatar */}
           <div
@@ -161,7 +205,6 @@ export default function AIChatMock() {
 
         {/* GPT RESPONSE */}
         <div className="flex items-start gap-3">
-          {/* GPT avatar */}
           <div
             className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5"
             style={{ background: "#10a37f", color: "#fff" }}
@@ -171,7 +214,7 @@ export default function AIChatMock() {
 
           <div className="flex-1 min-w-0">
 
-            {/* Typing indicator */}
+            {/* Typing dots */}
             {phase === 1 && <TypingDots />}
 
             {/* Response body */}
@@ -182,12 +225,10 @@ export default function AIChatMock() {
                 transition={{ duration: 0.35 }}
                 className="space-y-4"
               >
-                {/* Intro line */}
                 <p className="text-sm leading-relaxed" style={{ color: GPT_TEXT }}>
-                  Here are some of the most frequently cited personal injury law firms in Miami:
+                  Here are some of the most frequently cited personal injury law firms in Houston:
                 </p>
 
-                {/* Firm rows */}
                 <div className="space-y-3">
                   {FIRMS.map((firm, i) =>
                     phase >= 3 + i ? (
@@ -198,20 +239,13 @@ export default function AIChatMock() {
                         transition={{ duration: 0.38, ease: "easeOut" }}
                       >
                         <div className="flex items-center justify-between mb-1.5">
-                          <span
-                            className="text-xs font-medium"
-                            style={{ color: GPT_TEXT }}
-                          >
+                          <span className="text-xs font-medium" style={{ color: GPT_TEXT }}>
                             {firm.name}
                           </span>
-                          <span
-                            className="text-xs font-semibold tabular-nums"
-                            style={{ color: firm.color }}
-                          >
+                          <span className="text-xs font-semibold tabular-nums" style={{ color: firm.color }}>
                             {firm.platforms}/5 platforms
                           </span>
                         </div>
-                        {/* Progress bar */}
                         <div
                           className="h-1.5 rounded-full overflow-hidden"
                           style={{ background: "rgba(255,255,255,0.07)" }}
@@ -229,7 +263,7 @@ export default function AIChatMock() {
                   )}
                 </div>
 
-                {/* "Not cited" callout — CitationIQ overlay */}
+                {/* "Not cited" callout */}
                 {phase >= 6 && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
@@ -243,16 +277,10 @@ export default function AIChatMock() {
                   >
                     <span style={{ fontSize: 15, lineHeight: 1 }}>⚠️</span>
                     <div>
-                      <p
-                        className="text-xs font-semibold leading-snug"
-                        style={{ color: "#FCA5A5" }}
-                      >
+                      <p className="text-xs font-semibold leading-snug" style={{ color: "#FCA5A5" }}>
                         Your firm isn't appearing in AI answers
                       </p>
-                      <p
-                        className="text-xs mt-0.5 leading-snug"
-                        style={{ color: "rgba(252,165,165,0.55)" }}
-                      >
+                      <p className="text-xs mt-0.5 leading-snug" style={{ color: "rgba(252,165,165,0.55)" }}>
                         CitationIQ detected 0 / 5 AI platforms cite your business
                       </p>
                     </div>
@@ -268,19 +296,14 @@ export default function AIChatMock() {
       <div className="px-4 pb-4">
         <div
           className="flex items-center gap-3 px-4 py-3 rounded-xl"
-          style={{
-            background: GPT_BUBBLE,
-            border: `1px solid ${GPT_BORDER}`,
-          }}
+          style={{ background: GPT_BUBBLE, border: `1px solid ${GPT_BORDER}` }}
         >
-          {/* Attachment icon */}
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: "#4d4d5e", flexShrink: 0 }}>
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <span className="flex-1 text-sm" style={{ color: "#4d4d5e" }}>
             Message ChatGPT
           </span>
-          {/* Send button */}
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: "#676767" }}
