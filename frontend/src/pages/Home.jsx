@@ -1,4 +1,4 @@
-import Hero from "../components/Hero/Hero";
+import Hero from "../components/hero/Hero";
 import Navbar from "../components/ui/Navbar";
 import { useNavigate } from "react-router-dom";
 
