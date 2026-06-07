@@ -11,9 +11,9 @@ const GPT_BORDER  = "rgba(255,255,255,0.07)";
 
 // ── Firms revealed in the response ──────────────────────────
 const FIRMS = [
-  { name: "Morgan & Morgan",           platforms: 5, color: "#22C55E" },
-  { name: "Steinger, Greene & Feiner", platforms: 3, color: "#F59E0B" },
-  { name: "Grossman Roth Yaffa Cohen", platforms: 1, color: "#6B7280" },
+  { name: "Sullivan, Bennett & Feiner",  platforms: 5, color: "#22C55E" },
+  { name: "Morgan & Harrison Injury Counsel", platforms: 3, color: "#F59E0B" },
+  { name: "Yaffa Cohen, LLP", platforms: 1, color: "#6B7280" },
 ];
 
 // ── OpenAI / ChatGPT logo SVG (simplified) ──────────────────
@@ -59,13 +59,13 @@ export default function AIChatMock() {
     if (document.hidden) return;
 
     const t = [
-      setTimeout(() => setPhase(1), 900),
-      setTimeout(() => setPhase(2), 2200),
-      setTimeout(() => setPhase(3), 3100),
-      setTimeout(() => setPhase(4), 3950),
-      setTimeout(() => setPhase(5), 4800),
-      setTimeout(() => setPhase(6), 5900),
-      setTimeout(() => { setPhase(0); setCycle((c) => c + 1); }, 10000),
+      setTimeout(() => setPhase(1), 3900),
+      setTimeout(() => setPhase(2), 5200),
+      setTimeout(() => setPhase(3), 6100),
+      setTimeout(() => setPhase(4), 6950),
+      setTimeout(() => setPhase(5), 7800),
+      setTimeout(() => setPhase(6), 8900),
+      setTimeout(() => { setPhase(0); setCycle((c) => c + 1); }, 13000),
     ];
     return () => t.forEach(clearTimeout);
   }, [cycle]);
@@ -148,7 +148,7 @@ export default function AIChatMock() {
               maxWidth: "82%",
             }}
           >
-            Which personal injury law firms do you recommend in Miami?
+            I just got into a car accident. Which personal injury law firms do you recommend in Houston, TX?
           </div>
           {/* User avatar */}
           <div

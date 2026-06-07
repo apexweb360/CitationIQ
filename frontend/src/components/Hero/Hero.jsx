@@ -8,7 +8,7 @@ const GRADIENT = "linear-gradient(135deg, #22D3EE 0%, #8B5CF6 100%)";
 const YELLOW = "#ffd93b";
 const BG = "#040c14";
 
-const PLATFORMS = ["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok"];
+const PLATFORMS = ["ChatGPT", "Claude", "Gemini", "Perplexity", "Grok", "Copilot"];
 
 // H1 never starts at opacity:0 — browser can measure it as LCP immediately.
 // Secondary elements (subtext, form, badges) still fade up normally.
@@ -94,14 +94,14 @@ export default function Hero() {
                     animation: "pulse 2s ease-in-out infinite",
                   }}
                 />
-                Live AI citation testing across 5 platforms
+                Live AI citation testing across 6 platforms
               </span>
             </m.div>
 
             {/* H1 — LCP element: opacity always 1, only slides up */}
             <m.h1
               {...slideUp(0.05)}
-              className="text-5xl md:text-6xl font-bold leading-tight tracking-tight"
+              className="text-4xl md:text-5xl font-bold leading-tight tracking-tight"
               style={{ color: "#ffffff" }}
             >
               Does AI actually{" "}
@@ -125,7 +125,7 @@ export default function Hero() {
               style={{ color: "rgba(245,247,250,0.65)" }}
             >
               Run a free AI visibility audit. See how often ChatGPT, Claude, Gemini,
-              Perplexity, and Grok cite your brand — and how to climb.
+              Perplexity, Grok and Copilot cite your brand — and how to climb.
             </m.p>
 
             {/* INPUT FORM */}
@@ -145,7 +145,7 @@ export default function Hero() {
                 onBlur={(e) => { e.target.style.border = "1px solid rgba(255,255,255,0.12)"; }}
               />
               <button
-                className="px-6 py-3 rounded-xl font-semibold text-sm text-white whitespace-nowrap hover:opacity-90 transition-opacity"
+                className="px-5 py-3 rounded-xl font-semibold text-sm text-white whitespace-nowrap hover:opacity-90 transition-opacity"
                 style={{ background: GRADIENT }}
               >
                 Analyze ↗

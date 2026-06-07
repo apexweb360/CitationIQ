@@ -8,7 +8,7 @@ const BLUE   = "#3D6BFF";
 const PURPLE = "#A742FF";
 const GRAD   = `linear-gradient(to right, ${CYAN}, ${BLUE}, ${PURPLE})`;
 
-/* ─── Inline SVG icon (Lucide-compatible, zero extra deps) ──────────────────── */
+/* ─── Inline SVG icon (zero extra deps) ─────────────────────────────────────── */
 const Ico = ({ p, size = 14 }) => (
   <svg
     width={size} height={size}
@@ -33,6 +33,8 @@ const P = {
   book:    "M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20",
   chevron: "m6 9 6 6 6-6",
   arrow:   "M5 12h14M12 5l7 7-7 7",
+  menu:    "M4 6h16M4 12h16M4 18h16",
+  x:       "M18 6 6 18M6 6l12 12",
 };
 
 /* ─── Menu data ──────────────────────────────────────────────────────────────── */
@@ -160,15 +162,9 @@ function DropPanel({ menu, onClose }) {
 }
 
 /* ─── Navbar (global) ────────────────────────────────────────────────────────── */
-/**
- * Shared across every page.
- *
- * Props (backward-compat with Audit page):
- *   onReset   {Function} – called when "← Start over" is clicked
- *   showReset {boolean}  – swaps Sign in + CTA for the reset button
- */
 export default function Navbar({ onReset, showReset = false }) {
-  const [open, setOpen] = useState(null); // null | "features" | "resources"
+  const [open,       setOpen]       = useState(null);   // desktop mega-menu
+  const [mobileOpen, setMobileOpen] = useState(false);  // mobile drawer
   const timers  = useRef({});
   const navRef  = useRef(null);
   const navigate = useNavigate();
@@ -177,9 +173,11 @@ export default function Navbar({ onReset, showReset = false }) {
   const leave  = (id) => { timers.current[id] = setTimeout(() => setOpen((p) => (p === id ? null : p)), 120); };
   const toggle = (id) => setOpen((p) => (p === id ? null : id));
 
+  const closeAll = () => { setOpen(null); setMobileOpen(false); };
+
   useEffect(() => {
     const outside = (e) => { if (navRef.current && !navRef.current.contains(e.target)) setOpen(null); };
-    const esc     = (e) => { if (e.key === "Escape") setOpen(null); };
+    const esc     = (e) => { if (e.key === "Escape") { setOpen(null); setMobileOpen(false); } };
     document.addEventListener("mousedown", outside);
     document.addEventListener("keydown",   esc);
     return () => {
@@ -188,12 +186,11 @@ export default function Navbar({ onReset, showReset = false }) {
     };
   }, []);
 
-  /* Shared button style helper */
   const navBtnStyle = (id) => ({
     display: "flex", alignItems: "center", gap: 5,
     padding: "6px 13px", borderRadius: 7,
-    color:      open === id ? "#fff" : "rgba(255,255,255,0.55)",
-    background: open === id ? "rgba(255,255,255,0.06)" : "none",
+    color:      open === id ? "#fff" : "#fff",         // always white
+    background: open === id ? "rgba(255,255,255,0.08)" : "none",
     cursor: "pointer", border: "none",
     fontSize: 13.5, fontFamily: "inherit",
     letterSpacing: "-0.1px", whiteSpace: "nowrap",
@@ -201,39 +198,62 @@ export default function Navbar({ onReset, showReset = false }) {
 
   return (
     <>
-      {/* ── Scoped hover styles ──────────────────────────────────────────── */}
+      {/* ── Scoped hover / responsive styles ───────────────────────────────── */}
       <style>{`
         .ciq-nav-btn           { transition: color .18s, background .18s; }
-        .ciq-nav-btn:hover     { color: #fff !important; background: rgba(255,255,255,0.06) !important; }
+        .ciq-nav-btn:hover     { color: #fff !important; background: rgba(255,255,255,0.08) !important; }
         .ciq-drop-item         { transition: background .14s; }
         .ciq-drop-item:hover   { background: rgba(255,255,255,0.05) !important; }
         .ciq-drop-item:hover .ciq-drop-icon { background: rgba(0,229,255,0.12) !important; color: ${CYAN} !important; }
         .ciq-drop-footer       { transition: background .14s; }
         .ciq-drop-footer:hover { background: rgba(83,74,183,0.22) !important; }
         .ciq-sign-in           { transition: color .18s, background .18s; }
-        .ciq-sign-in:hover     { color: #fff !important; background: rgba(255,255,255,0.06) !important; }
+        .ciq-sign-in:hover     { color: #fff !important; background: rgba(255,255,255,0.08) !important; }
         .ciq-cta               { transition: opacity .18s; }
         .ciq-cta:hover         { opacity: 0.85; }
         .ciq-ann-link          { transition: color .15s; }
         .ciq-ann-link:hover    { color: #fff !important; }
+        .ciq-mob-item          { transition: background .14s; }
+        .ciq-mob-item:hover    { background: rgba(255,255,255,0.06) !important; }
+
+        /* Desktop: show center links + right slot, hide hamburger */
+        .ciq-center-links { display: flex; }
+        .ciq-right-slot   { display: flex; }
+        .ciq-hamburger    { display: none; }
+
+        /* Mobile (≤ 767px): hide center + right, show hamburger */
+        @media (max-width: 767px) {
+          .ciq-center-links { display: none !important; }
+          .ciq-right-slot   { display: none !important; }
+          .ciq-hamburger    { display: flex !important; }
+          .ciq-ann-bar-full { display: none !important; }
+          .ciq-ann-bar-short{ display: inline !important; }
+        }
       `}</style>
 
       {/* ── Announcement bar ─────────────────────────────────────────────── */}
       <div style={{
         background: "#080810",
         borderBottom: "0.5px solid rgba(255,255,255,0.07)",
-        padding: "8px 24px", textAlign: "center",
+        padding: "8px 16px", textAlign: "center",
         fontSize: 12.5, color: "rgba(255,255,255,0.45)",
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        flexWrap: "wrap",
       }}>
         <span style={{
           background: "rgba(167,66,255,0.18)", border: "0.5px solid rgba(167,66,255,0.3)",
           borderRadius: 20, padding: "2px 10px",
           fontSize: 11, fontWeight: 600, color: PURPLE, letterSpacing: "0.02em",
+          flexShrink: 0,
         }}>
           New
         </span>
-        Real-time citation tracking across ChatGPT, Perplexity &amp; Gemini
+        <span className="ciq-ann-bar-full">
+          Real-time citation tracking across ChatGPT, Perplexity &amp; Gemini
+        </span>
+        <span className="ciq-ann-bar-short" style={{ display: "none" }}>
+          Real-time AI citation tracking
+        </span>
         <span style={{ opacity: 0.3 }}>·</span>
         <Link
           to="/blog" className="ciq-ann-link"
@@ -246,30 +266,31 @@ export default function Navbar({ onReset, showReset = false }) {
       {/* ── Main nav ─────────────────────────────────────────────────────── */}
       <nav ref={navRef} style={{
         background: "#000", borderBottom: "0.5px solid rgba(255,255,255,0.08)",
-        padding: "0 28px", height: 60,
+        padding: "0 20px", height: 68,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 50,
       }}>
 
-        {/* Logo */}
+        {/* Logo — links to Home */}
         <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
           <img
             src={CIQ_ASSETS.logoFull}
-            alt="CitationIQ — Know. Compare. Outrank."
-            style={{ height: 34, width: "auto", display: "block" }}
+            alt="CitationIQ"
+            draggable={false}
+            style={{ height: 52, width: "auto", display: "block", objectFit: "contain" }}
             onError={(e) => {
               e.target.style.display = "none";
               if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
             }}
           />
-          {/* Fallback if PNG fails */}
+          {/* Fallback if PNG is missing */}
           <span style={{
             display: "none", alignItems: "center", gap: 7,
-            fontSize: 16, fontWeight: 600, letterSpacing: "-0.3px", color: "#fff",
+            fontSize: 17, fontWeight: 700, letterSpacing: "-0.4px", color: "#fff",
           }}>
             <img
-              src={CIQ_ASSETS.icon} alt="" width={26} height={26}
-              style={{ width: 26, height: 26, borderRadius: 7 }}
+              src={CIQ_ASSETS.iconSvg} alt="" width={28} height={28}
+              style={{ width: 28, height: 28, borderRadius: 7 }}
               onError={(e) => { e.target.style.display = "none"; }}
             />
             Citation
@@ -279,17 +300,21 @@ export default function Navbar({ onReset, showReset = false }) {
           </span>
         </Link>
 
-        {/* Center links — absolutely positioned so they're always truly centered */}
-        <div style={{
+        {/* Center nav links (desktop only) */}
+        <div className="ciq-center-links" style={{
           position: "absolute", left: "50%", transform: "translateX(-50%)",
-          display: "flex", alignItems: "center", gap: 2,
+          alignItems: "center", gap: 2,
         }}>
 
           {/* Features */}
           <div style={{ position: "relative" }} onMouseEnter={() => enter("features")} onMouseLeave={() => leave("features")}>
             <button className="ciq-nav-btn" onClick={() => toggle("features")} style={navBtnStyle("features")}>
               Features
-              <span style={{ display: "flex", transition: "transform 0.22s", transform: open === "features" ? "rotate(180deg)" : "rotate(0deg)", color: "rgba(255,255,255,0.4)" }}>
+              <span style={{
+                display: "flex", transition: "transform 0.22s",
+                transform: open === "features" ? "rotate(180deg)" : "rotate(0deg)",
+                color: "rgba(255,255,255,0.5)",
+              }}>
                 <Ico p={P.chevron} size={11} />
               </span>
             </button>
@@ -298,7 +323,7 @@ export default function Navbar({ onReset, showReset = false }) {
 
           {/* Pricing */}
           <Link to="/#pricing" className="ciq-nav-btn" style={{
-            padding: "6px 13px", borderRadius: 7, color: "rgba(255,255,255,0.55)",
+            padding: "6px 13px", borderRadius: 7, color: "#fff",
             textDecoration: "none", fontSize: 13.5, letterSpacing: "-0.1px", whiteSpace: "nowrap",
           }}>
             Pricing
@@ -308,7 +333,11 @@ export default function Navbar({ onReset, showReset = false }) {
           <div style={{ position: "relative" }} onMouseEnter={() => enter("resources")} onMouseLeave={() => leave("resources")}>
             <button className="ciq-nav-btn" onClick={() => toggle("resources")} style={navBtnStyle("resources")}>
               Resources
-              <span style={{ display: "flex", transition: "transform 0.22s", transform: open === "resources" ? "rotate(180deg)" : "rotate(0deg)", color: "rgba(255,255,255,0.4)" }}>
+              <span style={{
+                display: "flex", transition: "transform 0.22s",
+                transform: open === "resources" ? "rotate(180deg)" : "rotate(0deg)",
+                color: "rgba(255,255,255,0.5)",
+              }}>
                 <Ico p={P.chevron} size={11} />
               </span>
             </button>
@@ -317,11 +346,11 @@ export default function Navbar({ onReset, showReset = false }) {
 
         </div>
 
-        {/* Right slot */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+        {/* Right slot (desktop only) */}
+        <div className="ciq-right-slot" style={{ alignItems: "center", gap: 6, flexShrink: 0 }}>
           {showReset && onReset ? (
             <button onClick={onReset} className="ciq-sign-in" style={{
-              fontSize: 12, color: "rgba(255,255,255,0.5)",
+              fontSize: 13, color: "rgba(255,255,255,0.6)",
               background: "none", border: "none", cursor: "pointer",
               padding: "6px 12px", borderRadius: 7, fontFamily: "inherit",
             }}>
@@ -330,7 +359,7 @@ export default function Navbar({ onReset, showReset = false }) {
           ) : (
             <Link to="/login" className="ciq-sign-in" style={{
               padding: "6px 13px", borderRadius: 7,
-              color: "rgba(255,255,255,0.5)", fontSize: 13.5,
+              color: "#fff", fontSize: 13.5,
               textDecoration: "none", letterSpacing: "-0.1px",
             }}>
               Sign in
@@ -349,7 +378,100 @@ export default function Navbar({ onReset, showReset = false }) {
           </button>
         </div>
 
+        {/* Hamburger (mobile only) */}
+        <button
+          className="ciq-hamburger"
+          onClick={() => setMobileOpen((p) => !p)}
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            color: "#fff", padding: 8, borderRadius: 8,
+            display: "none", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}
+          aria-label="Toggle menu"
+        >
+          <Ico p={mobileOpen ? P.x : P.menu} size={22} />
+        </button>
+
       </nav>
+
+      {/* ── Mobile drawer ────────────────────────────────────────────────── */}
+      {mobileOpen && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.5)", zIndex: 49,
+          backdropFilter: "blur(4px)",
+        }}
+          onClick={closeAll}
+        />
+      )}
+      <div style={{
+        position: "fixed", top: 68, left: 0, right: 0,
+        background: "#0a0a0a", borderBottom: "0.5px solid rgba(255,255,255,0.1)",
+        zIndex: 50, padding: "8px 0 16px",
+        transform: mobileOpen ? "translateY(0)" : "translateY(-110%)",
+        transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1)",
+        pointerEvents: mobileOpen ? "all" : "none",
+      }}>
+
+        {/* Mobile nav items */}
+        {[
+          { label: "Features",  to: "/#features" },
+          { label: "Pricing",   to: "/#pricing"  },
+          { label: "Blog",      to: "/blog"       },
+          { label: "GEO Guides",to: "/guides"     },
+          { label: "Case Studies", to: "/cases"   },
+          { label: "Docs",      to: "/docs"       },
+        ].map((item) => (
+          <Link
+            key={item.label}
+            to={item.to}
+            onClick={closeAll}
+            className="ciq-mob-item"
+            style={{
+              display: "block",
+              padding: "13px 24px",
+              color: "#fff",
+              textDecoration: "none",
+              fontSize: 15,
+              fontWeight: 500,
+              letterSpacing: "-0.2px",
+            }}
+          >
+            {item.label}
+          </Link>
+        ))}
+
+        {/* Divider */}
+        <div style={{ height: "0.5px", background: "rgba(255,255,255,0.07)", margin: "10px 24px" }} />
+
+        {/* Mobile CTA */}
+        <div style={{ padding: "6px 24px", display: "flex", flexDirection: "column", gap: 8 }}>
+          <Link to="/login" onClick={closeAll} style={{
+            display: "block", textAlign: "center", padding: "12px",
+            borderRadius: 9, border: "0.5px solid rgba(255,255,255,0.15)",
+            color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 500,
+          }}>
+            Sign in
+          </Link>
+          <button
+            onClick={() => { navigate("/audit"); closeAll(); }}
+            style={{
+              padding: "13px", borderRadius: 9,
+              background: GRAD, color: "#fff",
+              fontSize: 14, fontWeight: 600,
+              cursor: "pointer", border: "none",
+              fontFamily: "inherit",
+            }}
+          >
+            Start free audit →
+          </button>
+        </div>
+
+      </div>
+
+      {/* Spacer so page content clears the fixed mobile drawer when open */}
+      {mobileOpen && <div style={{ height: 0 }} />}
     </>
   );
 }
