@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CitationIQ — SMB Audit Workflow v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Page dark */
+      --page-bg:      #060608;
+      --page-border:  #1c1c20;
+
+      /* Card light (Claude gray) */
+      --card-bg:      #f5f4f1;
+      --card-bg-2:    #eceae5;
+      --card-bg-3:    #e3e1db;
+      --card-border:  #d8d5ce;
+      --card-border2: #c8c4bc;
+      --card-text:    #111110;
+      --card-muted:   #5c5a55;
+      --card-dim:     #9a9790;
+
+      /* Shared card shell */
+      --card-radius:  14px;
+      --card-shadow:  0 4px 24px rgba(0,0,0,.40);
+
+      /* Brand */
+      --cyan:         #22D3EE;
+      --purple:       #8B5CF6;
+      --grad:         linear-gradient(135deg, #22D3EE 0%, #8B5CF6 100%);
+      --grad-text:    linear-gradient(135deg, #22D3EE 0%, #a78bfa 100%);
+
+      /* Status */
+      --green:        #16a34a;
+      --green-bg:     #dcfce7;
+      --green-border: #bbf7d0;
+      --red:          #dc2626;
+      --red-bg:       #fee2e2;
+      --red-border:   #fecaca;
+      --amber:        #d97706;
+      --amber-bg:     #fef3c7;
+      --amber-border: #fde68a;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--page-bg);
+      color: var(--card-text);
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Buttons always Inter */
+    button, a.btn { font-family: 'Inter', sans-serif; }
+
+    /* ─── SITE HEADER (placeholder for global nav) ─── */
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 40px;
+      background: rgba(6,6,8,0.97);
+      border-bottom: 1px solid var(--page-border);
+    }
+    .logo {
+      font-family: 'Space Mono', monospace; font-size: 17px; font-weight: 700;
+      background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header-session {
+      font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.5px;
+      color: #44444a; border: 1px solid #1c1c20; border-radius: 20px; padding: 4px 12px;
+    }
+
+    /* ─── PROGRESS STEPPER ──────────────────────────── */
+    .stepper-wrap {
+      background: rgba(6,6,8,0.96);
+      border-bottom: 1px solid #18181c;
+      padding: 18px 40px;
+    }
+    .stepper {
+      max-width: 780px; margin: 0 auto;
+      display: flex; align-items: center;
+    }
+    .step-node {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .step-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+      border: 2px solid #2a2a2e; color: #44444a; background: #111113;
+      transition: all 0.25s;
+    }
+    .step-node.done .step-circle {
+      background: var(--green-bg); border-color: var(--green-border); color: var(--green);
+    }
+    .step-node.active .step-circle {
+      background: var(--grad); border-color: transparent; color: #060608;
+    }
+    .step-lbl {
+      font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.3px;
+      color: #3a3a40; text-align: center; white-space: nowrap;
+      transition: color 0.25s;
+    }
+    .step-node.done .step-lbl { color: var(--green); }
+    .step-node.active .step-lbl { color: #d0cec8; }
+    .step-line {
+      flex: 1; height: 1px; background: #1e1e24; margin: 0 6px; margin-bottom: 18px;
+      transition: background 0.25s;
+    }
+    .step-line.done { background: var(--green-border); }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ─── SHARED CARD SHELL ─────────────────────────── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--card-radius);
+      box-shadow: var(--card-shadow);
+    }
+    .card-2 {
+      background: var(--card-bg-2);
+      border: 1px solid var(--card-border);
+      border-radius: var(--card-radius);
+      box-shadow: var(--card-shadow);
+    }
+
+    /* ─── FLOW BUTTON ───────────────────────────────── */
+    .btn-grad {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--grad); color: #060608;
+      border: none; border-radius: 9px; padding: 11px 24px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      font-size: 13px; font-weight: 700;
+    }
+    .btn-grad:hover { opacity: .88; }
+    .btn-grad-wide { width: 100%; justify-content: center; }
+    .btn-green {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--green-bg); color: var(--green);
+      border: 1px solid var(--green-border); border-radius: 9px; padding: 11px 24px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      font-size: 13px; font-weight: 700; text-decoration: none;
+    }
+    .btn-green:hover { opacity: .82; }
+    .btn-green-wide { width: 100%; justify-content: center; }
+
+    /* ─── SECTION EYE ───────────────────────────────── */
+    .eye {
+      font-family: 'Space Mono', monospace; font-size: 8px;
+      letter-spacing: 1.5px; color: var(--card-muted); margin-bottom: 6px;
+    }
+    .eye-cyan { color: var(--cyan); }
+
+    /* ══ S1: AUDIT RUNNING ══════════════════════════ */
+    #s1 { display: flex; flex-direction: column; align-items: center; padding: 48px 20px; }
+    #s1.active { display: flex; }
+
+    .s1-hdr { text-align: center; margin-bottom: 32px; }
+    .domain-chip {
+      display: inline-block; margin-bottom: 14px;
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px;
+      color: var(--cyan); background: rgba(34,211,238,.07);
+      border: 1px solid rgba(34,211,238,.18); border-radius: 6px; padding: 4px 14px;
+    }
+    .s1-hdr h1 {
+      font-size: 28px; font-weight: 700; line-height: 1.25; color: #e8e6e0;
+      margin-bottom: 6px; letter-spacing: -0.3px;
+    }
+    .s1-hdr h1 em {
+      font-style: normal; background: var(--grad-text);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .s1-hdr p { font-size: 13px; color: #5c5a58; }
+
+    .audit-card { width: 100%; max-width: 640px; overflow: hidden; }
+
+    .audit-topbar {
+      display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+      background: var(--card-bg-2); border-bottom: 1px solid var(--card-border);
+      border-radius: var(--card-radius) var(--card-radius) 0 0;
+    }
+    .audit-topbar-lbl { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--card-muted); letter-spacing: 1px; }
+    .prog-track { flex: 1; height: 5px; background: var(--card-bg-3); border-radius: 5px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 5px; background: var(--grad); width: 0; transition: width 1s ease; }
+    .audit-pct { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: var(--card-text); }
+
+    .step { display: flex; align-items: center; gap: 13px; padding: 11px 20px; border-bottom: 1px solid var(--card-border); }
+    .step:last-child { border-bottom: none; }
+    .step-ico {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 11px;
+    }
+    .step-ico.done  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .step-ico.run   { background: rgba(34,211,238,.1); color: var(--cyan); border: 1px solid rgba(34,211,238,.25); animation: pulse 1.8s ease-in-out infinite; }
+    .step-ico.queue { background: var(--card-bg-2); color: var(--card-dim); border: 1px solid var(--card-border); }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.25)}50%{box-shadow:0 0 0 6px rgba(34,211,238,0)} }
+
+    .step-bd { flex: 1; }
+    .step-name { font-size: 12px; font-weight: 500; color: var(--card-text); }
+    .step.queue .step-name { color: var(--card-dim); }
+    .step-sub  { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--card-dim); margin-top: 1px; }
+    .step.run .step-sub { color: var(--cyan); }
+
+    .sbadge { font-family: 'Space Mono', monospace; font-size: 8px; border-radius: 4px; padding: 2px 7px; flex-shrink: 0; letter-spacing: .3px; }
+    .sbadge.done  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .sbadge.run   { background: rgba(34,211,238,.1); color: var(--cyan); border: 1px solid rgba(34,211,238,.25); }
+    .sbadge.queue { background: var(--card-bg-2); color: var(--card-dim); border: 1px solid var(--card-border); }
+
+    .audit-footer {
+      background: var(--card-bg-2); border-top: 1px solid var(--card-border);
+      padding: 11px 20px; display: flex; align-items: center; justify-content: space-between;
+      border-radius: 0 0 var(--card-radius) var(--card-radius);
+    }
+    .audit-eta { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--card-muted); }
+    .pchips { display: flex; gap: 5px; }
+    .pchip { font-family: 'Space Mono', monospace; font-size: 8px; background: var(--card-bg-3); color: var(--card-muted); border: 1px solid var(--card-border); border-radius: 3px; padding: 2px 7px; }
+    .pchip.on { background: rgba(139,92,246,.1); color: var(--purple); border-color: rgba(139,92,246,.2); }
+
+    /* ══ S2: SCORE READY ═══════════════════════════ */
+    #s2 { display: flex; flex-direction: column; align-items: center; padding: 44px 20px 72px; }
+    #s2.active { display: flex; }
+
+    .s2-wrap { width: 100%; max-width: 620px; }
+
+    .score-reveal {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius) var(--card-radius) 0 0;
+      padding: 20px 22px; display: flex; align-items: center; gap: 18px;
+    }
+    .score-ring {
+      width: 68px; height: 68px; flex-shrink: 0; border-radius: 50%;
+      background: conic-gradient(#d97706 0deg 230deg, #d8d5ce 230deg 360deg);
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .score-ring::after { content:''; width:50px; height:50px; border-radius:50%; background:var(--card-bg); position:absolute; }
+    .score-ring-num { position:relative; z-index:1; font-family:'Space Mono',monospace; font-size:16px; font-weight:700; color:var(--amber); }
+    .score-biz { font-size: 17px; font-weight: 700; color: var(--card-text); margin-bottom: 3px; }
+    .score-line { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 6px; }
+    .grade-chip { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); border-radius: 4px; padding: 2px 7px; }
+    .score-sub  { font-size: 12px; color: var(--card-muted); }
+    .schips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .schip { font-family: 'Space Mono', monospace; font-size: 8px; border-radius: 3px; padding: 2px 7px; }
+    .schip.bad  { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .schip.good { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .schip.lock { background: var(--card-bg-2); color: var(--card-muted); border: 1px solid var(--card-border); }
+
+    .s2-body {
+      background: var(--card-bg-2); border: 1px solid var(--card-border); border-top: none;
+      border-radius: 0 0 var(--card-radius) var(--card-radius);
+      padding: 24px 22px; box-shadow: var(--card-shadow);
+    }
+    .s2-hook { text-align: center; margin-bottom: 20px; }
+    .s2-hook h2 { font-size: 19px; font-weight: 700; color: var(--card-text); margin-bottom: 5px; line-height: 1.3; }
+    .s2-hook p  { font-size: 12px; color: var(--card-muted); }
+    .s2-hook strong { color: var(--card-text); }
+
+    .s2-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .ff { display: flex; flex-direction: column; gap: 4px; }
+    .ff label { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--card-muted); }
+    .ff input {
+      background: var(--card-bg); border: 1px solid var(--card-border2); border-radius: 7px;
+      padding: 9px 11px; color: var(--card-text); font-family: 'DM Sans', sans-serif;
+      font-size: 13px; outline: none; transition: border-color .2s;
+    }
+    .ff input:focus { border-color: var(--cyan); }
+    .ff input::placeholder { color: var(--card-dim); }
+
+    .s2-trust { display: flex; justify-content: center; gap: 16px; font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--card-dim); margin: 9px 0 16px; }
+
+    .s2-teaser { padding-top: 18px; border-top: 1px solid var(--card-border); }
+    .teaser-lbl { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--card-dim); margin-bottom: 10px; }
+    .teaser-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .teaser-card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px;
+      padding: 11px 8px; text-align: center; filter: blur(3.5px); user-select: none; pointer-events: none;
+    }
+    .teaser-icon { font-size: 16px; margin-bottom: 2px; }
+    .teaser-sub  { font-size: 9px; color: var(--card-muted); }
+    .teaser-val  { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--card-text); }
+
+    /* ══ S3: FREE REPORT ═══════════════════════════ */
+    #s3.active { display: block; }
+
+    .rpt-hero {
+      background: var(--card-bg); border-bottom: 1px solid var(--card-border);
+      padding: 32px 48px;
+    }
+    .rpt-hero-inner { max-width: 1020px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: start; }
+    .rpt-biz-name { font-size: 22px; font-weight: 700; color: var(--card-text); margin-bottom: 2px; }
+    .rpt-biz-url  { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--card-muted); margin-bottom: 10px; }
+    .rpt-headline { font-size: 18px; font-weight: 700; line-height: 1.35; color: var(--card-text); margin-bottom: 4px; }
+    .rpt-headline .hl-red { color: var(--red); font-style: italic; }
+    .ai-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+    .ai-tag {
+      font-family: 'Space Mono', monospace; font-size: 8px; border-radius: 4px; padding: 2px 8px;
+      display: flex; align-items: center; gap: 4px;
+      background: var(--card-bg-2); border: 1px solid var(--card-border); color: var(--card-muted);
+    }
+    .ai-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .ai-dot.red { background: var(--red); } .ai-dot.amber { background: var(--amber); }
+
+    .score-widget {
+      background: var(--card-bg-2); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); padding: 22px 28px; text-align: center;
+    }
+    .score-big-ring {
+      width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 8px;
+      background: conic-gradient(#d97706 0deg 230deg, #e3e1db 230deg 360deg);
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .score-big-ring::after { content:''; width:60px; height:60px; border-radius:50%; background:var(--card-bg-2); position:absolute; }
+    .score-big-num   { position:relative; z-index:1; font-family:'Space Mono',monospace; font-size:18px; font-weight:700; color:var(--amber); }
+    .score-big-grade { font-size:22px; font-weight:700; color:var(--card-text); }
+    .score-big-lbl   { font-size:11px; color:var(--card-muted); margin-bottom:8px; }
+    .score-widget-sub { font-family:'Space Mono',monospace; font-size:8px; letter-spacing:.4px; color:var(--card-dim); border-top:1px solid var(--card-border); padding-top:9px; }
+
+    .rpt-tabs { background: var(--card-bg-2); border-bottom: 1px solid var(--card-border); padding: 0 48px; display: flex; }
+    .rpt-tab {
+      padding: 10px 16px; cursor: pointer; font-family: 'Space Mono', monospace;
+      font-size: 9px; font-weight: 700; letter-spacing: .3px; color: var(--card-muted);
+      border: none; background: transparent; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .2s;
+    }
+    .rpt-tab:hover { color: var(--card-text); }
+    .rpt-tab.active { color: var(--green); border-bottom-color: var(--green); }
+    .rpt-tab .lock { opacity: .4; }
+
+    .rpt-body { max-width: 1020px; margin: 0 auto; padding: 28px 48px; display: grid; grid-template-columns: 1fr 280px; gap: 28px; align-items: start; }
+
+    .mini-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
+    .mini-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 12px 14px;
+    }
+    .mini-card-lbl { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: .3px; color: var(--card-muted); margin-bottom: 4px; }
+    .mini-card-val { font-family: 'Space Mono', monospace; font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+    .mini-card-val.red { color: var(--red); } .mini-card-val.amber { color: var(--amber); } .mini-card-val.green { color: var(--green); }
+    .mini-bar { height: 3px; background: var(--card-bg-3); border-radius: 3px; overflow: hidden; }
+    .mini-bar-fill { height: 100%; border-radius: 3px; }
+    .mf-red { background: var(--red); } .mf-amber { background: var(--amber); } .mf-green { background: var(--green); }
+
+    .pillar { margin-bottom: 22px; }
+    .pillar-hdr { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+    .pillar-ico {
+      width: 30px; height: 30px; border-radius: 7px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+      background: var(--card-bg-2); border: 1px solid var(--card-border);
+    }
+    .pillar-name { font-size: 13px; font-weight: 700; color: var(--card-text); }
+    .pillar-sub  { font-size: 11px; color: var(--card-muted); }
+    .pillar-score { margin-left: auto; font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; }
+
+    .sig {
+      display: flex; align-items: center; gap: 9px; padding: 8px 12px;
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 7px; margin-bottom: 5px;
+    }
+    .sig-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .sig-dot.red { background: var(--red); } .sig-dot.amber { background: var(--amber); } .sig-dot.green { background: var(--green); }
+    .sig-name { flex: 1; font-size: 12px; color: var(--card-text); }
+    .sig-val  { font-size: 11px; color: var(--card-muted); flex-shrink: 0; max-width: 170px; text-align: right; }
+    .sig-tag  { font-family: 'Space Mono', monospace; font-size: 8px; border-radius: 3px; padding: 1px 6px; flex-shrink: 0; white-space: nowrap; }
+    .sig-tag.fix     { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .sig-tag.improve { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .sig-tag.good    { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+    .locked-block { position: relative; border-radius: var(--card-radius); overflow: hidden; margin-bottom: 22px; }
+    .locked-inner { filter: blur(5px); pointer-events: none; user-select: none; }
+    .locked-overlay {
+      position: absolute; inset: 0; background: rgba(245,244,241,.84);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px;
+      backdrop-filter: blur(2px);
+    }
+    .pro-chip { background: var(--grad); color: #060608; font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; border-radius: 5px; padding: 3px 10px; }
+    .locked-msg  { font-size: 14px; font-weight: 700; color: var(--card-text); text-align: center; }
+    .locked-sub  { font-size: 12px; color: var(--card-muted); text-align: center; }
+
+    /* Sidebar */
+    .rpt-sidebar { position: sticky; top: 80px; }
+    .sb-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); padding: 16px; margin-bottom: 12px;
+      box-shadow: var(--card-shadow);
+    }
+    .sb-title { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--card-muted); margin-bottom: 11px; }
+    .fix-row { display: flex; gap: 9px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--card-border); }
+    .fix-row:last-child { border-bottom: none; }
+    .fix-n { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; border-radius: 50%; width: 18px; height: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .fix-n.r { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .fix-n.a { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .fix-text   { font-size: 11px; color: var(--card-text); line-height: 1.4; }
+    .fix-impact { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--card-dim); margin-top: 2px; }
+    .sb-cta-inner { background: linear-gradient(135deg,rgba(34,211,238,.07),rgba(139,92,246,.07)); border: 1px solid rgba(139,92,246,.2); border-radius: var(--card-radius); padding: 16px; text-align: center; }
+    .sb-cta-eye   { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 1.5px; color: var(--cyan); margin-bottom: 6px; }
+    .sb-cta-title { font-size: 13px; font-weight: 700; color: var(--card-text); margin-bottom: 4px; }
+    .sb-cta-sub   { font-size: 11px; color: var(--card-muted); margin-bottom: 11px; }
+    .sb-fine { font-family: 'Space Mono', monospace; font-size: 7px; letter-spacing: .5px; color: var(--card-dim); margin-top: 6px; }
+
+    /* ══ S4: PRO INTELLIGENCE ══════════════════════ */
+    #s4.active { display: block; }
+
+    .pro-banner {
+      background: var(--card-bg-2); border-bottom: 1px solid var(--card-border);
+      padding: 12px 48px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .pro-banner-l { display: flex; align-items: center; gap: 9px; }
+    .pro-banner-badge { background: var(--grad); color: #060608; font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; border-radius: 4px; padding: 3px 8px; letter-spacing: .8px; }
+    .pro-banner-txt   { font-size: 12px; color: var(--card-muted); }
+    .pro-banner-txt strong { color: var(--card-text); }
+    .pro-banner-date  { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--card-dim); }
+
+    .pro-sec { max-width: 1020px; margin: 0 auto; padding: 28px 48px; }
+    .sec-hdr { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; }
+    .sec-hdr h2 { font-size: 17px; font-weight: 700; color: var(--card-text); }
+    .sec-badge { font-family: 'Space Mono', monospace; font-size: 8px; background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); border-radius: 4px; padding: 2px 8px; }
+
+    .gap-callout {
+      background: var(--red-bg); border: 1px solid var(--red-border);
+      border-radius: 10px; padding: 14px 17px; margin-bottom: 26px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .gap-icon  { font-size: 17px; flex-shrink: 0; margin-top: 2px; }
+    .gap-title { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 3px; }
+    .gap-body  { font-size: 12px; color: var(--card-muted); line-height: 1.5; }
+    .gap-body strong { color: var(--card-text); }
+
+    /* Competitor table */
+    .comp-wrap {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); overflow: hidden; margin-bottom: 12px;
+      box-shadow: var(--card-shadow);
+    }
+    .comp-table { width: 100%; border-collapse: collapse; }
+    .comp-table th {
+      font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: .8px; color: var(--card-muted);
+      text-align: left; padding: 8px 12px; background: var(--card-bg-2); border-bottom: 1px solid var(--card-border);
+    }
+    .comp-table td { padding: 10px 12px; border-bottom: 1px solid var(--card-border); font-size: 12px; color: var(--card-text); }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table .you td { background: rgba(34,211,238,.03); }
+    .comp-name { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+    .you-tag { font-family: 'Space Mono', monospace; font-size: 7px; background: rgba(34,211,238,.1); color: var(--cyan); border-radius: 3px; padding: 1px 5px; }
+    .bar-cell { display: flex; align-items: center; gap: 7px; }
+    .bar-track { flex: 1; height: 5px; background: var(--card-bg-3); border-radius: 5px; overflow: hidden; min-width: 60px; }
+    .bar-fill  { height: 100%; border-radius: 5px; }
+    .bar-num { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--card-muted); width: 24px; text-align: right; flex-shrink: 0; }
+    .rank-tag { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; border-radius: 5px; padding: 2px 8px; display: inline-block; }
+    .r1 { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .r2 { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .r3 { background: rgba(34,211,238,.1); color: var(--cyan); border: 1px solid rgba(34,211,238,.25); }
+    .r4 { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+
+    /* AI mention cards */
+    .mention-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
+    .mention-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 12px; box-shadow: var(--card-shadow);
+    }
+    .mention-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+    .mention-platform { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--card-muted); }
+    .mstatus { font-family: 'Space Mono', monospace; font-size: 7px; border-radius: 3px; padding: 2px 6px; }
+    .ms-yes   { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .ms-no    { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .ms-vague { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .mention-quote { font-size: 11px; color: var(--card-muted); border-left: 2px solid var(--card-border2); padding-left: 8px; font-style: italic; line-height: 1.5; margin-bottom: 6px; }
+    .mention-query { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--card-dim); }
+
+    /* Roadmap */
+    .roadmap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 20px; }
+    .rm-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); overflow: hidden; box-shadow: var(--card-shadow);
+    }
+    .rm-top    { padding: 14px 16px; border-bottom: 1px solid var(--card-border); }
+    .rm-week   { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: .8px; color: var(--card-dim); margin-bottom: 3px; }
+    .rm-title  { font-size: 13px; font-weight: 700; color: var(--card-text); margin-bottom: 3px; }
+    .rm-sub    { font-size: 11px; color: var(--card-muted); line-height: 1.4; }
+    .rm-actions { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
+    .rm-action { display: flex; gap: 7px; font-size: 11px; color: var(--card-text); line-height: 1.4; }
+    .rm-action .arr { color: var(--green); flex-shrink: 0; font-weight: 700; }
+    .rm-comp-badge { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); font-family: 'Space Mono', monospace; font-size: 7px; border-radius: 3px; padding: 1px 5px; display: inline-block; margin-left: 4px; vertical-align: middle; }
+    .rm-impact { padding: 8px 16px; background: var(--card-bg-2); border-top: 1px solid var(--card-border); display: flex; align-items: center; gap: 7px; font-family: 'Space Mono', monospace; font-size: 8px; }
+    .rm-impact-lbl  { color: var(--card-dim); }
+    .rm-impact-val  { color: var(--green); font-weight: 700; }
+    .rm-impact-comp { color: var(--amber); margin-left: auto; }
+
+    .projection-box {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); padding: 20px 24px; display: flex;
+      align-items: center; gap: 24px; box-shadow: var(--card-shadow);
+    }
+    .proj-eye      { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 1.5px; color: var(--cyan); margin-bottom: 6px; }
+    .proj-headline { font-size: 16px; font-weight: 700; color: var(--card-text); margin-bottom: 4px; }
+    .proj-sub      { font-size: 12px; color: var(--card-muted); }
+    .proj-num      { font-family: 'Space Mono', monospace; font-size: 42px; font-weight: 700; background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; flex-shrink: 0; }
+    .proj-num-lbl  { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--card-dim); text-align: center; }
+
+    .s4-cta-strip { text-align: center; margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--card-border); }
+    .s4-cta-lbl      { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: var(--card-muted); margin-bottom: 8px; }
+    .s4-cta-headline { font-size: 16px; font-weight: 700; color: var(--card-text); margin-bottom: 5px; }
+    .s4-cta-sub      { font-size: 13px; color: var(--card-muted); margin-bottom: 16px; }
+
+    /* ══ S5: BOOK A STRATEGY CALL ═══════════════════ */
+    #s5 { display: flex; flex-direction: column; align-items: center; padding: 52px 20px 72px; }
+    #s5.active { display: flex; }
+
+    .s5-wrap { width: 100%; max-width: 900px; }
+
+    /* S5 hero */
+    .s5-hero { text-align: center; margin-bottom: 40px; }
+    .s5-hero h1 { font-size: 32px; font-weight: 700; color: #e8e6e0; line-height: 1.2; margin-bottom: 9px; letter-spacing: -0.3px; }
+    .s5-hero h1 em { font-style: normal; background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .s5-hero p { font-size: 14px; color: #6b6965; max-width: 500px; margin: 0 auto; }
+
+    /* S5 uses the same .card shell as everywhere else */
+    .s5-section-title { font-size: 15px; font-weight: 700; color: var(--card-text); margin-bottom: 4px; }
+    .s5-section-sub   { font-size: 12px; color: var(--card-muted); margin-bottom: 16px; }
+
+    /* Compact competitor matrix for S5 */
+    .s5-comp-wrap { margin-bottom: 36px; }
+
+    /* Roadmap preview (2 cards) */
+    .s5-rm-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 36px; }
+
+    /* Benefit strips */
+    .ben-strip {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-bottom: 28px;
+    }
+    .ben-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); padding: 18px 15px; box-shadow: var(--card-shadow);
+    }
+    .ben-icon  { font-size: 20px; margin-bottom: 8px; }
+    .ben-title { font-size: 13px; font-weight: 700; color: var(--card-text); margin-bottom: 3px; }
+    .ben-desc  { font-size: 12px; color: var(--card-muted); line-height: 1.5; }
+
+    /* CTA grid — same card shell */
+    .s5-cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .cta-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); padding: 22px 20px; box-shadow: var(--card-shadow);
+      display: flex; flex-direction: column;
+    }
+    .cta-card.primary { border-color: rgba(139,92,246,.28); }
+    .cta-eye   { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 1.5px; margin-bottom: 8px; }
+    .cta-card.primary .cta-eye   { color: var(--purple); }
+    .cta-card.secondary .cta-eye { color: var(--green); }
+    .cta-title { font-size: 16px; font-weight: 700; color: var(--card-text); margin-bottom: 4px; }
+    .cta-sub   { font-size: 12px; color: var(--card-muted); margin-bottom: 16px; line-height: 1.5; flex: 1; }
+    .cta-perks { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+    .cta-perk  { display: flex; gap: 7px; font-size: 12px; color: var(--card-text); }
+    .cta-perk-dot { color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .cta-fine  { font-family: 'Space Mono', monospace; font-size: 7px; letter-spacing: .5px; color: var(--card-dim); text-align: center; margin-top: 6px; }
+
+    /* Urgency strip — same card shell */
+    .urgency-strip {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--card-radius); padding: 18px 22px; box-shadow: var(--card-shadow);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .urg-score { text-align: center; flex-shrink: 0; }
+    .urg-score-num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--amber); }
+    .urg-score-lbl { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--card-dim); }
+    .urg-div   { width: 1px; background: var(--card-border); align-self: stretch; flex-shrink: 0; }
+    .urg-body  { flex: 1; }
+    .urg-title { font-size: 13px; font-weight: 700; color: var(--card-text); margin-bottom: 3px; }
+    .urg-sub   { font-size: 12px; color: var(--card-muted); line-height: 1.4; }
+    .urg-rank  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--red); margin-top: 3px; font-weight: 700; }
+
+    /* Section dividers in S5 */
+    .s5-divider { margin: 32px 0; border: none; border-top: 1px solid #18181c; }
+
+    @media (max-width: 860px) {
+      .rpt-hero { padding: 20px; } .rpt-hero-inner { grid-template-columns: 1fr; }
+      .rpt-tabs { padding: 0 20px; } .rpt-body { grid-template-columns: 1fr; padding: 20px; }
+      .mini-cards { grid-template-columns: 1fr 1fr; } .pro-sec { padding: 20px; }
+      .mention-grid { grid-template-columns: 1fr; } .roadmap-grid { grid-template-columns: 1fr; }
+      .ben-strip { grid-template-columns: 1fr; } .s5-cta-grid { grid-template-columns: 1fr; }
+      .s5-rm-preview { grid-template-columns: 1fr; } .urgency-strip { flex-direction: column; }
+      .stepper-wrap { padding: 14px 20px; } .site-header { padding: 10px 20px; }
+      .pro-banner { padding: 10px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SITE HEADER — placeholder for global website nav -->
+  <div class="site-header">
+    <div class="logo">CitationIQ</div>
+    <div class="header-session">apexweb360team@gmail.com</div>
+  </div>
+
+  <!-- PROGRESS STEPPER — inline, not a global nav -->
+  <div class="stepper-wrap">
+    <div class="stepper" id="stepper">
+      <div class="step-node done" onclick="go('s1',0)">
+        <div class="step-circle">✓</div>
+        <div class="step-lbl">Audit Running</div>
+      </div>
+      <div class="step-line done" id="line0"></div>
+      <div class="step-node" id="node1" onclick="go('s2',1)">
+        <div class="step-circle">2</div>
+        <div class="step-lbl">Score Ready</div>
+      </div>
+      <div class="step-line" id="line1"></div>
+      <div class="step-node" id="node2" onclick="go('s3',2)">
+        <div class="step-circle">3</div>
+        <div class="step-lbl">Free Report</div>
+      </div>
+      <div class="step-line" id="line2"></div>
+      <div class="step-node" id="node3" onclick="go('s4',3)">
+        <div class="step-circle">4</div>
+        <div class="step-lbl">Pro Intelligence</div>
+      </div>
+      <div class="step-line" id="line3"></div>
+      <div class="step-node" id="node4" onclick="go('s5',4)">
+        <div class="step-circle">5</div>
+        <div class="step-lbl">Book a Call</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ S1: AUDIT RUNNING ══════════════════ -->
+  <section id="s1" class="screen active">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:48px 20px;">
+      <div class="s1-hdr">
+        <div class="domain-chip">apexweb360.com</div>
+        <h1>Analyzing your <em>business intelligence</em><br>across AI platforms…</h1>
+        <p>Running 80+ signals across 4 SMB pillars · 4 AI engines · ~45 seconds</p>
+      </div>
+      <div class="card audit-card" style="max-width:640px;width:100%;">
+        <div class="audit-topbar">
+          <div class="audit-topbar-lbl">AUDIT PROGRESS</div>
+          <div class="prog-track"><div class="prog-fill" id="pf"></div></div>
+          <div class="audit-pct">45%</div>
+        </div>
+        <div>
+          <div class="step done"><div class="step-ico done">✓</div><div class="step-bd"><div class="step-name">Discovering your business identity</div><div class="step-sub">PILLAR 1 · PRODUCT &amp; VALUE DIFFERENTIATION</div></div><div class="sbadge done">DONE</div></div>
+          <div class="step done"><div class="step-ico done">✓</div><div class="step-bd"><div class="step-name">Extracting service offerings &amp; unique value props</div><div class="step-sub">PILLAR 1 · 12 SIGNALS SCORED</div></div><div class="sbadge done">DONE</div></div>
+          <div class="step done"><div class="step-ico done">✓</div><div class="step-bd"><div class="step-name">Mapping pricing visibility in AI responses</div><div class="step-sub">PILLAR 2 · PRICING &amp; MARKET STRATEGY</div></div><div class="sbadge done">DONE</div></div>
+          <div class="step done"><div class="step-ico done">✓</div><div class="step-bd"><div class="step-name">Detecting how competitors outrank you in AI</div><div class="step-sub">PILLAR 2 · 14 SIGNALS SCORED</div></div><div class="sbadge done">DONE</div></div>
+          <div class="step run"><div class="step-ico run">◉</div><div class="step-bd"><div class="step-name">Scanning citation coverage &amp; digital presence</div><div class="step-sub">PILLAR 3 · PROMOTION &amp; DIGITAL PRESENCE</div></div><div class="sbadge run">RUNNING</div></div>
+          <div class="step queue"><div class="step-ico queue">○</div><div class="step-bd"><div class="step-name">Auditing review signals &amp; brand authority</div><div class="step-sub">PILLAR 3 · REVIEW VELOCITY &amp; SENTIMENT</div></div><div class="sbadge queue">QUEUED</div></div>
+          <div class="step queue"><div class="step-ico queue">○</div><div class="step-bd"><div class="step-name">Checking entity structure &amp; schema authority</div><div class="step-sub">PILLAR 4 · OPERATIONAL INTELLIGENCE</div></div><div class="sbadge queue">QUEUED</div></div>
+          <div class="step queue"><div class="step-ico queue">○</div><div class="step-bd"><div class="step-name">Running live AI queries on 4 engines</div><div class="step-sub">CHATGPT · GEMINI · PERPLEXITY · CLAUDE</div></div><div class="sbadge queue">QUEUED</div></div>
+          <div class="step queue"><div class="step-ico queue">○</div><div class="step-bd"><div class="step-name">Benchmarking against your top 3 local competitors</div><div class="step-sub">COMPETITOR INTELLIGENCE · PRO FEATURE</div></div><div class="sbadge queue">QUEUED</div></div>
+          <div class="step queue"><div class="step-ico queue">○</div><div class="step-bd"><div class="step-name">Building your personalized Outrank plan</div><div class="step-sub">COMPETITOR GAP ANALYSIS + 30-DAY ROADMAP</div></div><div class="sbadge queue">QUEUED</div></div>
+        </div>
+        <div class="audit-footer">
+          <div class="audit-eta">⟳ &nbsp;~27 seconds remaining</div>
+          <div class="pchips">
+            <span class="pchip">VALUE ✓</span>
+            <span class="pchip">PRICING ✓</span>
+            <span class="pchip on">PRESENCE ◉</span>
+            <span class="pchip">OPS</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:22px;">
+        <button class="btn-grad" onclick="go('s2',1)">Preview: Score Ready → Step 2</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ S2: YOUR SCORE IS READY ════════════ -->
+  <section id="s2" class="screen">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:44px 20px 72px;">
+      <div class="s2-wrap">
+        <div class="score-reveal">
+          <div class="score-ring"><div class="score-ring-num">64</div></div>
+          <div style="flex:1;">
+            <div class="score-biz">ApexWeb360</div>
+            <div class="score-line">
+              <span class="grade-chip">GRADE C</span>
+              <span class="score-sub">AI Visibility · 80 signals · 4 pillars</span>
+            </div>
+            <div class="schips">
+              <span class="schip bad">⚠ 3 competitors outranking you</span>
+              <span class="schip bad">✗ Missing from ChatGPT &amp; Gemini</span>
+              <span class="schip good">✓ 18 signals passing</span>
+              <span class="schip lock">🔒 Competitor data ready</span>
+            </div>
+          </div>
+        </div>
+        <div class="s2-body">
+          <div class="s2-hook">
+            <div class="eye eye-cyan" style="margin-bottom:9px;">YOUR REPORT IS READY — 100% FREE</div>
+            <h2>See exactly why AI sends customers<br>to your competitors — not you.</h2>
+            <p>Get your full SMB visibility breakdown, top 5 quick wins, and a preview of the <strong>competitor gap costing you business every day</strong>.</p>
+          </div>
+          <div class="s2-form">
+            <div class="ff"><label>FULL NAME</label><input type="text" placeholder="Jane Smith" /></div>
+            <div class="ff"><label>BUSINESS NAME</label><input type="text" value="ApexWeb360" /></div>
+            <div class="ff"><label>PHONE</label><input type="tel" placeholder="+1 (555) 000-0000" /></div>
+            <div class="ff"><label>EMAIL</label><input type="email" placeholder="apexweb360team@gmail.com" /></div>
+          </div>
+          <button class="btn-grad btn-grad-wide" onclick="go('s3',2)">Show me my full report →</button>
+          <div class="s2-trust"><span>🔒 100% FREE</span><span>◎ NO CREDIT CARD</span><span>⚡ READY NOW</span></div>
+          <div class="s2-teaser">
+            <div class="teaser-lbl">🔒 &nbsp;UNLOCKS IN YOUR REPORT</div>
+            <div class="teaser-grid">
+              <div class="teaser-card"><div class="teaser-icon">🏆</div><div class="teaser-sub">Competitor Rank</div><div class="teaser-val">#3</div></div>
+              <div class="teaser-card"><div class="teaser-icon">🤖</div><div class="teaser-sub">AI Mention Rate</div><div class="teaser-val">18%</div></div>
+              <div class="teaser-card"><div class="teaser-icon">💬</div><div class="teaser-sub">Review Gap vs #1</div><div class="teaser-val">−47</div></div>
+              <div class="teaser-card"><div class="teaser-icon">🗺</div><div class="teaser-sub">Outrank Actions</div><div class="teaser-val">12</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ S3: FREE REPORT ════════════════════ -->
+  <section id="s3" class="screen">
+    <div class="rpt-hero">
+      <div class="rpt-hero-inner">
+        <div>
+          <div class="rpt-biz-name">ApexWeb360</div>
+          <div class="rpt-biz-url">apexweb360.com · Web Design · Philadelphia, PA</div>
+          <div class="rpt-headline">AI is choosing your competitors over you.<br><span class="hl-red">5 changes this month will shift that.</span></div>
+          <div class="ai-row">
+            <div class="ai-tag"><span class="ai-dot red"></span>ChatGPT — Not mentioned</div>
+            <div class="ai-tag"><span class="ai-dot red"></span>Gemini — Not found</div>
+            <div class="ai-tag"><span class="ai-dot amber"></span>Perplexity — Vague</div>
+            <div class="ai-tag"><span class="ai-dot amber"></span>Claude — Partial</div>
+          </div>
+          <button class="btn-grad" style="margin-top:11px;" onclick="go('s4',3)">Unlock competitor analysis &amp; roadmap →</button>
+        </div>
+        <div class="score-widget">
+          <div class="score-big-ring"><div class="score-big-num">64</div></div>
+          <div class="score-big-grade">C</div>
+          <div class="score-big-lbl">AI Visibility Score</div>
+          <div class="score-widget-sub">80 SIGNALS · 4 PILLARS · 4 AI ENGINES</div>
+        </div>
+      </div>
+    </div>
+    <div class="rpt-tabs">
+      <button class="rpt-tab active">Full Audit</button>
+      <button class="rpt-tab">Fix Plan <span class="lock">🔒</span></button>
+      <button class="rpt-tab">Competitor Map <span class="lock">🔒</span></button>
+      <button class="rpt-tab">Outrank Roadmap <span class="lock">🔒</span></button>
+    </div>
+    <div class="rpt-body">
+      <div>
+        <div class="eye" style="margin-bottom:10px;">YOUR 4 SMB PILLARS</div>
+        <div class="mini-cards">
+          <div class="mini-card"><div class="mini-card-lbl">PRODUCT &amp; VALUE</div><div class="mini-card-val amber">58<span style="font-size:11px;color:var(--card-muted)">/100</span></div><div class="mini-bar"><div class="mini-bar-fill mf-amber" style="width:58%"></div></div></div>
+          <div class="mini-card"><div class="mini-card-lbl">PRICING STRATEGY</div><div class="mini-card-val red">34<span style="font-size:11px;color:var(--card-muted)">/100</span></div><div class="mini-bar"><div class="mini-bar-fill mf-red" style="width:34%"></div></div></div>
+          <div class="mini-card"><div class="mini-card-lbl">DIGITAL PRESENCE</div><div class="mini-card-val amber">71<span style="font-size:11px;color:var(--card-muted)">/100</span></div><div class="mini-bar"><div class="mini-bar-fill mf-amber" style="width:71%"></div></div></div>
+          <div class="mini-card"><div class="mini-card-lbl">OPERATIONAL INTEL</div><div class="mini-card-val green">82<span style="font-size:11px;color:var(--card-muted)">/100</span></div><div class="mini-bar"><div class="mini-bar-fill mf-green" style="width:82%"></div></div></div>
+          <div class="mini-card"><div class="mini-card-lbl">AI MENTION RATE</div><div class="mini-card-val red">18<span style="font-size:11px;color:var(--card-muted)">%</span></div><div class="mini-bar"><div class="mini-bar-fill mf-red" style="width:18%"></div></div></div>
+          <div class="mini-card"><div class="mini-card-lbl">REVIEW AUTHORITY</div><div class="mini-card-val amber">61<span style="font-size:11px;color:var(--card-muted)">/100</span></div><div class="mini-bar"><div class="mini-bar-fill mf-amber" style="width:61%"></div></div></div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-hdr"><div class="pillar-ico">🎯</div><div><div class="pillar-name">Product &amp; Value Differentiation</div><div class="pillar-sub">How AI describes you vs. what you actually offer</div></div><div class="pillar-score" style="color:var(--amber)">58/100</div></div>
+          <div class="sig"><div class="sig-dot amber"></div><div class="sig-name">Service clarity in AI responses</div><div class="sig-val">Vague — no specific services</div><span class="sig-tag improve">Improve</span></div>
+          <div class="sig"><div class="sig-dot red"></div><div class="sig-name">Unique value proposition visible to AI</div><div class="sig-val">Not detected on any engine</div><span class="sig-tag fix">Fix now</span></div>
+          <div class="sig"><div class="sig-dot amber"></div><div class="sig-name">Portfolio / proof of work indexed</div><div class="sig-val">3 of 12 projects found</div><span class="sig-tag improve">Improve</span></div>
+          <div class="sig"><div class="sig-dot green"></div><div class="sig-name">Business category accuracy (GBP)</div><div class="sig-val">Correct — Web Design agency</div><span class="sig-tag good">Good</span></div>
+          <div class="sig"><div class="sig-dot red"></div><div class="sig-name">Differentiator keywords in AI context</div><div class="sig-val">0 differentiators found</div><span class="sig-tag fix">Fix now</span></div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-hdr"><div class="pillar-ico">💰</div><div><div class="pillar-name">Pricing &amp; Market Strategy</div><div class="pillar-sub">Price anchoring, positioning, and competitive signals</div></div><div class="pillar-score" style="color:var(--red)">34/100</div></div>
+          <div class="sig"><div class="sig-dot red"></div><div class="sig-name">Pricing signals detectable by AI</div><div class="sig-val">None — completely invisible</div><span class="sig-tag fix">Fix now</span></div>
+          <div class="sig"><div class="sig-dot red"></div><div class="sig-name">Price anchoring vs. local market</div><div class="sig-val">No anchor — you appear generic</div><span class="sig-tag fix">Fix now</span></div>
+        </div>
+        <div class="locked-block">
+          <div class="locked-inner">
+            <div class="pillar">
+              <div class="pillar-hdr"><div class="pillar-ico">📣</div><div><div class="pillar-name">Promotion &amp; Digital Presence</div><div class="pillar-sub">Citation coverage, review velocity, social signals</div></div><div class="pillar-score" style="color:var(--amber)">71/100</div></div>
+              <div class="sig"><div class="sig-dot amber"></div><div class="sig-name">Google Business Profile completeness</div><div class="sig-val">74%</div><span class="sig-tag improve">Improve</span></div>
+              <div class="sig"><div class="sig-dot red"></div><div class="sig-name">Citation consistency (NAP)</div><div class="sig-val">3 conflicts detected</div><span class="sig-tag fix">Fix now</span></div>
+              <div class="sig"><div class="sig-dot green"></div><div class="sig-name">Review volume</div><div class="sig-val">47 reviews</div><span class="sig-tag good">Good</span></div>
+            </div>
+            <div class="pillar">
+              <div class="pillar-hdr"><div class="pillar-ico">🧠</div><div><div class="pillar-name">Operational &amp; Structural Intelligence</div><div class="pillar-sub">Entity authority, schema, AI crawlability</div></div><div class="pillar-score" style="color:var(--green)">82/100</div></div>
+              <div class="sig"><div class="sig-dot green"></div><div class="sig-name">LocalBusiness schema present</div><div class="sig-val">Valid — detected</div><span class="sig-tag good">Good</span></div>
+            </div>
+          </div>
+          <div class="locked-overlay">
+            <div class="pro-chip">PRO FEATURE</div>
+            <div class="locked-msg">Pillars 3 &amp; 4 + Competitor Intelligence</div>
+            <div class="locked-sub">Your complete 80-signal breakdown, who's beating you in AI,<br>and your personalized 30-day competitor gap plan.</div>
+            <button class="btn-grad" onclick="go('s4',3)">Unlock Pro — $49/mo →</button>
+          </div>
+        </div>
+      </div>
+      <div class="rpt-sidebar">
+        <div class="sb-card">
+          <div class="sb-title">YOUR TOP 5 FREE FIXES</div>
+          <div class="fix-row"><div class="fix-n r">1</div><div><div class="fix-text">Rewrite your H1 with a specific niche ("Shopify web design for Philadelphia retail brands")</div><div class="fix-impact">HIGH IMPACT · Product &amp; Value</div></div></div>
+          <div class="fix-row"><div class="fix-n r">2</div><div><div class="fix-text">Add pricing signals to every service page — even "Starting at $X" is enough</div><div class="fix-impact">HIGH IMPACT · Pricing Strategy</div></div></div>
+          <div class="fix-row"><div class="fix-n r">3</div><div><div class="fix-text">List specific services — "Shopify design" not just "web design"</div><div class="fix-impact">HIGH IMPACT · Product &amp; Value</div></div></div>
+          <div class="fix-row"><div class="fix-n a">4</div><div><div class="fix-text">Resolve NAP conflicts on Yelp, YP, and Bing Places (3 found)</div><div class="fix-impact">MEDIUM · Digital Presence</div></div></div>
+          <div class="fix-row"><div class="fix-n a">5</div><div><div class="fix-text">Request 2 reviews per week to restore velocity signal</div><div class="fix-impact">MEDIUM · Digital Presence</div></div></div>
+        </div>
+        <div class="sb-card">
+          <div class="sb-cta-inner">
+            <div class="sb-cta-eye">PRO INCLUDES</div>
+            <div class="sb-cta-title">Competitor Map + 30-Day Outrank Plan</div>
+            <div class="sb-cta-sub">See who's beating you in AI and exactly what they're doing differently.</div>
+            <button class="btn-grad btn-grad-wide" onclick="go('s4',3)">Unlock Pro — $49/mo →</button>
+            <div class="sb-fine">CANCEL ANYTIME · INSTANT ACCESS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ S4: PRO INTELLIGENCE ══════════════ -->
+  <section id="s4" class="screen">
+    <div class="pro-banner">
+      <div class="pro-banner-l">
+        <div class="pro-banner-badge">PRO</div>
+        <div class="pro-banner-txt"><strong>ApexWeb360</strong> · Full SMB Intelligence · 80 signals · 4 AI engines · Live competitor benchmarks</div>
+      </div>
+      <div class="pro-banner-date">June 7, 2026</div>
+    </div>
+    <div class="pro-sec">
+      <div class="gap-callout">
+        <div class="gap-icon">⚠️</div>
+        <div>
+          <div class="gap-title">You are ranked #3 of 4 local competitors in AI visibility</div>
+          <div class="gap-body"><strong>Philly Web Co.</strong> scores 89/100 and appears in ChatGPT and Gemini for nearly every local query — including pricing questions where you have zero presence. <strong>PixelForge PHL</strong> dominates the pricing conversation (82 vs your 34). These two gaps represent your biggest revenue opportunity.</div>
+        </div>
+      </div>
+      <div class="sec-hdr"><h2>Competitor AI Visibility Map</h2><span class="sec-badge">PHILADELPHIA · WEB DESIGN</span></div>
+      <div class="comp-wrap">
+        <table class="comp-table">
+          <thead><tr><th>BUSINESS</th><th>AI VISIBILITY</th><th>VALUE CLARITY</th><th>PRICING SIGNALS</th><th>REVIEW AUTH.</th><th>DIGITAL PRESENCE</th><th>RANK</th></tr></thead>
+          <tbody>
+            <tr><td><div class="comp-name">Philly Web Co.</div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:89%;background:var(--green)"></div></div><div class="bar-num">89</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:91%;background:var(--green)"></div></div><div class="bar-num">91</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--green)"></div></div><div class="bar-num">78</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--green)"></div></div><div class="bar-num">85</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:92%;background:var(--green)"></div></div><div class="bar-num">92</div></div></td><td><span class="rank-tag r1">#1</span></td></tr>
+            <tr><td><div class="comp-name">PixelForge PHL</div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:76%;background:var(--amber)"></div></div><div class="bar-num">76</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--amber)"></div></div><div class="bar-num">70</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--green)"></div></div><div class="bar-num">82</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:74%;background:var(--amber)"></div></div><div class="bar-num">74</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--amber)"></div></div><div class="bar-num">68</div></div></td><td><span class="rank-tag r2">#2</span></td></tr>
+            <tr class="you"><td><div class="comp-name">ApexWeb360 <span class="you-tag">YOU</span></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:64%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">64</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:58%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">58</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--red)"></div></div><div class="bar-num" style="color:var(--red)">34</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:61%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">61</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:71%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">71</div></div></td><td><span class="rank-tag r3">#3</span></td></tr>
+            <tr><td><div class="comp-name">Keystone Digital</div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:51%;background:var(--red)"></div></div><div class="bar-num">51</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:45%;background:var(--red)"></div></div><div class="bar-num">45</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:29%;background:var(--red)"></div></div><div class="bar-num">29</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--green)"></div></div><div class="bar-num">88</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:53%;background:var(--red)"></div></div><div class="bar-num">53</div></div></td><td><span class="rank-tag r4">#4</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sec-hdr" style="margin-top:26px;"><h2>Live AI Mention Analysis</h2><span class="sec-badge">4 ENGINES · 6 QUERY TYPES</span></div>
+      <div class="mention-grid">
+        <div class="mention-card"><div class="mention-top"><div class="mention-platform">ChatGPT</div><span class="mstatus ms-no">Not Mentioned</span></div><div class="mention-quote">"For web design in Philadelphia I'd recommend Philly Web Co. or PixelForge PHL — both have strong portfolios and clear pricing…"</div><div class="mention-query">Query: "Best web design agency Philadelphia"</div></div>
+        <div class="mention-card"><div class="mention-top"><div class="mention-platform">Gemini</div><span class="mstatus ms-no">Not Mentioned</span></div><div class="mention-quote">"Top web designers in Philly include Philly Web Co., PixelForge, and Keystone Digital, who offer transparent pricing starting at $1,200…"</div><div class="mention-query">Query: "Who builds websites in Philadelphia PA"</div></div>
+        <div class="mention-card"><div class="mention-top"><div class="mention-platform">Perplexity</div><span class="mstatus ms-vague">Vague Mention</span></div><div class="mention-quote">"ApexWeb360 is a Philadelphia web agency with some client work visible online, though limited details are available about their pricing…"</div><div class="mention-query">Query: "Affordable web design Philadelphia"</div></div>
+        <div class="mention-card"><div class="mention-top"><div class="mention-platform">Claude</div><span class="mstatus ms-vague">Vague Mention</span></div><div class="mention-quote">"…you may also want to check ApexWeb360, though I have limited information about their Shopify experience or turnaround times…"</div><div class="mention-query">Query: "Shopify web design expert near Philadelphia"</div></div>
+        <div class="mention-card"><div class="mention-top"><div class="mention-platform">ChatGPT — Pricing Query</div><span class="mstatus ms-no">Not Mentioned</span></div><div class="mention-quote">"Philly Web Co. offers pricing starting at $1,500 for small business sites, with Shopify builds around $2,800…"</div><div class="mention-query">Query: "How much does web design cost in Philadelphia"</div></div>
+        <div class="mention-card"><div class="mention-top"><div class="mention-platform">Gemini — Niche Query</div><span class="mstatus ms-no">Not Mentioned</span></div><div class="mention-quote">"For Shopify-specific development in Philadelphia, PixelForge PHL is frequently recommended due to their documented e-commerce portfolio…"</div><div class="mention-query">Query: "Philadelphia Shopify web design agency"</div></div>
+      </div>
+      <div class="sec-hdr" style="margin-top:26px;"><h2>Your 30-Day Outrank Roadmap</h2><span class="sec-badge">PERSONALIZED TO YOUR COMPETITOR GAPS</span></div>
+      <div class="roadmap-grid">
+        <div class="rm-card"><div class="rm-top"><div class="rm-week">WEEK 1 · PRIORITY: CRITICAL</div><div class="rm-title">🎯 Close the Value Clarity Gap</div><div class="rm-sub">Philly Web Co. scores 91 on value clarity. You score 58. This is the #1 reason AI skips you.</div></div><div class="rm-actions"><div class="rm-action"><span class="arr">→</span><span>Rewrite homepage H1: "Shopify Web Design for Philadelphia Retail Brands" — mirroring Philly Web Co.'s niche-specific copy <span class="rm-comp-badge">COMP GAP</span></span></div><div class="rm-action"><span class="arr">→</span><span>Add 3 specific differentiators AI can extract: turnaround time, industries served, client outcomes with numbers</span></div><div class="rm-action"><span class="arr">→</span><span>Create a "Why ApexWeb360" page — the #1 page Philly Web Co. has that you're missing</span></div></div><div class="rm-impact"><span class="rm-impact-lbl">AI VISIBILITY LIFT:</span><span class="rm-impact-val">+12–18 pts</span><span class="rm-impact-comp">Closes 33-pt gap vs. #1</span></div></div>
+        <div class="rm-card"><div class="rm-top"><div class="rm-week">WEEK 1–2 · PRIORITY: CRITICAL</div><div class="rm-title">💰 Win the Pricing Conversation</div><div class="rm-sub">PixelForge scores 82 on pricing signals. You score 34. Every "how much does it cost" query goes to them.</div></div><div class="rm-actions"><div class="rm-action"><span class="arr">→</span><span>Add "Starting at $X" to every service page — PixelForge leads with "$1,200" and ChatGPT quotes it verbatim <span class="rm-comp-badge">COMP GAP</span></span></div><div class="rm-action"><span class="arr">→</span><span>Create a pricing FAQ page targeting "web design cost Philadelphia" — your biggest untapped AI query</span></div><div class="rm-action"><span class="arr">→</span><span>Add PriceRange + ServiceType to your LocalBusiness JSON-LD schema</span></div></div><div class="rm-impact"><span class="rm-impact-lbl">AI VISIBILITY LIFT:</span><span class="rm-impact-val">+8–14 pts</span><span class="rm-impact-comp">Closes 48-pt gap vs. PixelForge</span></div></div>
+        <div class="rm-card"><div class="rm-top"><div class="rm-week">WEEK 2–3 · PRIORITY: MEDIUM</div><div class="rm-title">📣 Repair &amp; Amplify Your Presence</div><div class="rm-sub">Philly Web Co. has 94 reviews vs. your 47. AI weighs review volume as a trust signal.</div></div><div class="rm-actions"><div class="rm-action"><span class="arr">→</span><span>Fix 3 NAP conflicts on Yelp, Yellow Pages, and Bing Places — each conflict hurts your entity authority</span></div><div class="rm-action"><span class="arr">→</span><span>Launch a 2-per-week review cadence — closing the 47-review gap takes ~5 months at this pace <span class="rm-comp-badge">COMP GAP</span></span></div><div class="rm-action"><span class="arr">→</span><span>Submit to 8 high-authority missing directories (detailed list in Fix Plan tab)</span></div></div><div class="rm-impact"><span class="rm-impact-lbl">AI VISIBILITY LIFT:</span><span class="rm-impact-val">+6–10 pts</span><span class="rm-impact-comp">Review parity in ~5 months</span></div></div>
+        <div class="rm-card"><div class="rm-top"><div class="rm-week">WEEK 3–4 · PRIORITY: MEDIUM</div><div class="rm-title">🧠 Win Query Types Your Competitors Miss</div><div class="rm-sub">Your structural score (82) is strong — use it to capture niche queries competitors ignore.</div></div><div class="rm-actions"><div class="rm-action"><span class="arr">→</span><span>Add FAQ schema to 3 top service pages — Philly Web Co. doesn't have this; you can leapfrog them on FAQ queries <span class="rm-comp-badge">THEIR BLIND SPOT</span></span></div><div class="rm-action"><span class="arr">→</span><span>Create a Philadelphia neighborhood page covering 12 areas — captures hyperlocal queries none of your competitors target</span></div><div class="rm-action"><span class="arr">→</span><span>Add knowsAbout + areaServed to your JSON-LD — gives AI signals to recommend you with specificity</span></div></div><div class="rm-impact"><span class="rm-impact-lbl">AI VISIBILITY LIFT:</span><span class="rm-impact-val">+5–9 pts</span><span class="rm-impact-comp">Win 3 query types no one owns</span></div></div>
+      </div>
+      <div class="projection-box">
+        <div style="flex:1"><div class="proj-eye">30-DAY PROJECTION</div><div class="proj-headline">Complete all 4 phases → move from <span style="color:var(--amber)">#3</span> to <span style="color:var(--green)">#1</span></div><div class="proj-sub">Estimated 31–51 point lift · AI will recommend you over Philly Web Co. for pricing and niche service queries within 30 days of implementation</div></div>
+        <div><div class="proj-num">95+</div><div class="proj-num-lbl">PROJECTED SCORE</div></div>
+      </div>
+      <div class="s4-cta-strip">
+        <div class="s4-cta-lbl">READY TO EXECUTE?</div>
+        <div class="s4-cta-headline">Turn this roadmap into results with expert guidance.</div>
+        <div class="s4-cta-sub">Book a free 15-minute strategy call — we'll walk through your top 5 moves live, together, customized for your market.</div>
+        <button class="btn-grad" onclick="go('s5',4)">Book My Free Strategy Call →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ S5: BOOK A STRATEGY CALL ═══════════ -->
+  <section id="s5" class="screen">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:52px 20px 72px;">
+      <div class="s5-wrap">
+
+        <!-- Hero -->
+        <div class="s5-hero">
+          <div class="eye eye-cyan" style="margin-bottom:12px;">FREE 15-MINUTE STRATEGY CALL</div>
+          <h1>Ready to <em>outrank your competitors</em><br>and get found by AI?</h1>
+          <p>You've seen the data. Now let's build the action plan together — no pitch, no pressure. Just 15 focused minutes on your biggest wins.</p>
+        </div>
+
+        <!-- ① Competitor matrix recap -->
+        <div class="s5-comp-wrap">
+          <div class="eye" style="margin-bottom:4px;">YOUR COMPETITIVE POSITION — WHY THIS CALL MATTERS</div>
+          <div class="s5-section-sub">Here's where you stand against your top 3 local competitors right now. Every day without action is a day they capture your customers.</div>
+          <div class="comp-wrap">
+            <table class="comp-table">
+              <thead><tr><th>BUSINESS</th><th>AI VISIBILITY</th><th>VALUE CLARITY</th><th>PRICING SIGNALS</th><th>REVIEW AUTH.</th><th>DIGITAL PRESENCE</th><th>RANK</th></tr></thead>
+              <tbody>
+                <tr><td><div class="comp-name">Philly Web Co.</div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:89%;background:var(--green)"></div></div><div class="bar-num">89</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:91%;background:var(--green)"></div></div><div class="bar-num">91</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--green)"></div></div><div class="bar-num">78</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--green)"></div></div><div class="bar-num">85</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:92%;background:var(--green)"></div></div><div class="bar-num">92</div></div></td><td><span class="rank-tag r1">#1</span></td></tr>
+                <tr><td><div class="comp-name">PixelForge PHL</div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:76%;background:var(--amber)"></div></div><div class="bar-num">76</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--amber)"></div></div><div class="bar-num">70</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--green)"></div></div><div class="bar-num">82</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:74%;background:var(--amber)"></div></div><div class="bar-num">74</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--amber)"></div></div><div class="bar-num">68</div></div></td><td><span class="rank-tag r2">#2</span></td></tr>
+                <tr class="you"><td><div class="comp-name">ApexWeb360 <span class="you-tag">YOU</span></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:64%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">64</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:58%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">58</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--red)"></div></div><div class="bar-num" style="color:var(--red)">34</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:61%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">61</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:71%;background:var(--amber)"></div></div><div class="bar-num" style="color:var(--amber)">71</div></div></td><td><span class="rank-tag r3">#3</span></td></tr>
+                <tr><td><div class="comp-name">Keystone Digital</div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:51%;background:var(--red)"></div></div><div class="bar-num">51</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:45%;background:var(--red)"></div></div><div class="bar-num">45</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:29%;background:var(--red)"></div></div><div class="bar-num">29</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--green)"></div></div><div class="bar-num">88</div></div></td><td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:53%;background:var(--red)"></div></div><div class="bar-num">53</div></div></td><td><span class="rank-tag r4">#4</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ② 30-day roadmap preview -->
+        <div>
+          <div class="eye" style="margin-bottom:4px;">WHAT WE'LL BUILD TOGETHER — 30-DAY PLAN PREVIEW</div>
+          <div class="s5-section-sub">On the call we turn these competitor gaps into a sequenced weekly action plan built around your schedule and capacity.</div>
+          <div class="s5-rm-preview">
+            <div class="rm-card"><div class="rm-top"><div class="rm-week">WEEK 1 · PRIORITY: CRITICAL</div><div class="rm-title">🎯 Close the Value Clarity Gap</div><div class="rm-sub">Philly Web Co. scores 91 vs your 58. Niche-specific copy + "Why Us" page → AI starts choosing you.</div></div><div class="rm-actions"><div class="rm-action"><span class="arr">→</span><span>Rewrite H1 with niche-specific framing <span class="rm-comp-badge">COMP GAP</span></span></div><div class="rm-action"><span class="arr">→</span><span>Add 3 differentiators AI can extract verbatim</span></div><div class="rm-action"><span class="arr">→</span><span>Build a "Why ApexWeb360" page (Philly Web Co.'s #1 advantage)</span></div></div><div class="rm-impact"><span class="rm-impact-lbl">PROJECTED LIFT:</span><span class="rm-impact-val">+12–18 pts</span><span class="rm-impact-comp">Closes #1 gap</span></div></div>
+            <div class="rm-card"><div class="rm-top"><div class="rm-week">WEEK 1–2 · PRIORITY: CRITICAL</div><div class="rm-title">💰 Win the Pricing Conversation</div><div class="rm-sub">PixelForge scores 82 on pricing vs your 34. ChatGPT quotes their prices — yours are invisible.</div></div><div class="rm-actions"><div class="rm-action"><span class="arr">→</span><span>Add "Starting at $X" to every service page <span class="rm-comp-badge">COMP GAP</span></span></div><div class="rm-action"><span class="arr">→</span><span>Create pricing FAQ page targeting cost queries</span></div><div class="rm-action"><span class="arr">→</span><span>Add PriceRange to LocalBusiness schema</span></div></div><div class="rm-impact"><span class="rm-impact-lbl">PROJECTED LIFT:</span><span class="rm-impact-val">+8–14 pts</span><span class="rm-impact-comp">Closes #2 gap</span></div></div>
+          </div>
+        </div>
+
+        <hr class="s5-divider" />
+
+        <!-- ③ Benefit strips -->
+        <div class="eye" style="margin-bottom:12px;">WHAT HAPPENS ON THE CALL</div>
+        <div class="ben-strip">
+          <div class="ben-card"><div class="ben-icon">🏆</div><div class="ben-title">Competitor Gap Review</div><div class="ben-desc">We walk through exactly what Philly Web Co. and PixelForge are doing that you're not — and which gaps close fastest.</div></div>
+          <div class="ben-card"><div class="ben-icon">🗓</div><div class="ben-title">30-Day Priority Plan</div><div class="ben-desc">We sequence your 12 roadmap actions into a realistic week-by-week schedule based on your capacity and highest-impact moves first.</div></div>
+          <div class="ben-card"><div class="ben-icon">💬</div><div class="ben-title">Live Q&amp;A — No Pitch</div><div class="ben-desc">Ask anything about your audit results, AI visibility strategy, or how to implement specific fixes. No sales pressure. 100% tactical.</div></div>
+        </div>
+
+        <!-- ④ CTA grid -->
+        <div class="s5-cta-grid">
+          <div class="cta-card primary">
+            <div class="cta-eye">RECOMMENDED</div>
+            <div class="cta-title">Book Your Free 15-Min Call</div>
+            <div class="cta-sub">Schedule directly with an ApexWeb360 AI visibility specialist. We'll pull up your live report together and build your personalized attack plan.</div>
+            <div class="cta-perks">
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>Walk through your top 5 competitor gaps</span></div>
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>30-day priority plan built on your schedule</span></div>
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>Live answers to your specific questions</span></div>
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>FREE · No pitch · No commitment</span></div>
+            </div>
+            <a href="https://apexweb360.com/contact" target="_blank" class="btn-grad btn-grad-wide" style="text-decoration:none;">Book My Free Strategy Call →</a>
+            <div class="cta-fine">Opens apexweb360.com/contact · Slots available this week</div>
+          </div>
+          <div class="cta-card secondary">
+            <div class="cta-eye">PREFER EMAIL?</div>
+            <div class="cta-title">Send Us Your Report</div>
+            <div class="cta-sub">Not ready for a call? Email your CitationIQ results directly and we'll send a personalized recommendations response within 1 business day.</div>
+            <div class="cta-perks">
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>Personal response from a real specialist</span></div>
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>Top 3 competitor gaps called out specifically</span></div>
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>Custom quick-win recommendations</span></div>
+              <div class="cta-perk"><span class="cta-perk-dot">✓</span><span>Reply within 1 business day</span></div>
+            </div>
+            <a href="mailto:apexweb360team@gmail.com?subject=CitationIQ%20Report%20-%20ApexWeb360&body=Hi%2C%20I%20just%20completed%20a%20CitationIQ%20audit%20and%20would%20love%20your%20feedback%20on%20my%20results." class="btn-green btn-green-wide">Email apexweb360team@gmail.com →</a>
+            <div class="cta-fine">Response within 1 business day</div>
+          </div>
+        </div>
+
+        <!-- ⑤ Urgency strip -->
+        <div class="urgency-strip">
+          <div class="urg-score"><div class="urg-score-num">64</div><div class="urg-score-lbl">YOUR SCORE</div></div>
+          <div class="urg-div"></div>
+          <div class="urg-body">
+            <div class="urg-title">Every day at 64 is a day your competitors get recommended instead of you.</div>
+            <div class="urg-sub">ChatGPT and Gemini aren't showing your business to potential customers. Philly Web Co. is capturing those referrals right now — customers who would have chosen you.</div>
+            <div class="urg-rank">Currently ranked #3 of 4 local competitors in AI visibility.</div>
+          </div>
+          <a href="https://apexweb360.com/contact" target="_blank" class="btn-grad" style="text-decoration:none;flex-shrink:0;white-space:nowrap;">Let's fix this →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const nodes = [null, 'node1','node2','node3','node4'];
+    const lines = ['line0','line1','line2','line3'];
+
+    function go(id, idx) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+
+      // Stepper state
+      const nodeEls = document.querySelectorAll('.step-node');
+      nodeEls.forEach((n, i) => {
+        n.classList.remove('active','done');
+        if (i < idx) n.classList.add('done');
+        else if (i === idx) n.classList.add('active');
+        // Update circle text for done nodes
+        n.querySelector('.step-circle').textContent = i < idx ? '✓' : (i + 1);
+      });
+      lines.forEach((lId, i) => {
+        const el = document.getElementById(lId);
+        if (el) { el.classList.remove('done'); if (i < idx) el.classList.add('done'); }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    // Init progress bar on S1
+    setTimeout(() => { const p = document.getElementById('pf'); if (p) p.style.width = '45%'; }, 400);
+
+    // Init stepper to step 0 active
+    go('s1', 0);
+  </script>
+</body>
+</html>
