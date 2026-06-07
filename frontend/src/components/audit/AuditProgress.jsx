@@ -2,12 +2,14 @@ import { motion } from "framer-motion";
 
 const STATUS_MESSAGES = [
   { threshold: 0,  text: "Initializing audit engines…" },
-  { threshold: 15, text: "Firing prompts at ChatGPT…" },
-  { threshold: 30, text: "Querying Gemini…" },
-  { threshold: 45, text: "Checking Perplexity…" },
+  { threshold: 12, text: "Firing prompts at ChatGPT…" },
+  { threshold: 24, text: "Querying Gemini…" },
+  { threshold: 36, text: "Checking Google AI Overviews…" },
+  { threshold: 48, text: "Running Perplexity probes…" },
   { threshold: 60, text: "Running Claude analysis…" },
-  { threshold: 75, text: "Scoring citation visibility…" },
-  { threshold: 88, text: "Compiling recommendations…" },
+  { threshold: 72, text: "Checking Copilot…" },
+  { threshold: 82, text: "Scoring citation visibility…" },
+  { threshold: 90, text: "Compiling recommendations…" },
   { threshold: 95, text: "Finalizing report…" },
 ];
 
@@ -17,10 +19,12 @@ function getStatusMessage(progress) {
 }
 
 const ENGINE_ICONS = [
-  { label: "ChatGPT",    color: "#10a37f" },
-  { label: "Gemini",     color: "#4285F4" },
-  { label: "Perplexity", color: "#20b2aa" },
-  { label: "Claude",     color: "#D97706" },
+  { label: "ChatGPT",      color: "#10a37f" },
+  { label: "Gemini",       color: "#4285F4" },
+  { label: "Google AI",    color: "#EA4335" },
+  { label: "Perplexity",   color: "#20b2aa" },
+  { label: "Claude",       color: "#D97706" },
+  { label: "Copilot",      color: "#00B4EF" },
 ];
 
 export default function AuditProgress({ progress, businessName }) {
@@ -57,11 +61,12 @@ export default function AuditProgress({ progress, businessName }) {
         </div>
       </div>
 
-      {/* Engine indicators */}
-      <div className="flex justify-center gap-6">
+      {/* Engine indicators — 6 platforms */}
+      <div className="flex justify-center flex-wrap gap-5">
         {ENGINE_ICONS.map(({ label, color }, i) => {
-          const engineProgress = (i + 1) * 22;
-          const active = progress >= engineProgress - 15;
+          const step          = 100 / ENGINE_ICONS.length;
+          const engineProgress = Math.round((i + 1) * step);
+          const active = progress >= engineProgress - step;
           const done   = progress >= engineProgress;
 
           return (
@@ -76,8 +81,8 @@ export default function AuditProgress({ progress, businessName }) {
                 transition={active && !done ? { repeat: Infinity, duration: 1.2 } : {}}
                 className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-2"
                 style={{
-                  borderColor: done || active ? color : "rgba(255,255,255,0.1)",
-                  color:       done || active ? color : "rgba(255,255,255,0.3)",
+                  borderColor:     done || active ? color : "rgba(255,255,255,0.1)",
+                  color:           done || active ? color : "rgba(255,255,255,0.3)",
                   backgroundColor: done ? `${color}20` : "transparent",
                 }}
               >

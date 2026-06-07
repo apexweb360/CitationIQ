@@ -23,7 +23,7 @@ function TagInput({ tags, setTags, placeholder, id }) {
 
   return (
     <div
-      className="flex flex-wrap gap-2 p-3 rounded-xl border border-[var(--color-border)]
+      className="flex flex-wrap items-center gap-2 p-3 rounded-xl border border-[var(--color-border)]
                  bg-[var(--color-surface)] cursor-text min-h-[52px]"
       onClick={() => inputRef.current?.focus()}
     >
@@ -53,8 +53,9 @@ function TagInput({ tags, setTags, placeholder, id }) {
         onKeyDown={onKeyDown}
         onBlur={addTag}
         placeholder={tags.length === 0 ? placeholder : ""}
-        className="flex-1 min-w-[120px] bg-transparent outline-none text-sm
-                   text-white placeholder-[var(--color-muted)]"
+        className="flex-1 min-w-[100px] bg-transparent border-none outline-none shadow-none
+                   text-sm text-white placeholder-[var(--color-muted)]"
+        style={{ boxShadow: "none", border: "none" }}
       />
     </div>
   );
@@ -68,18 +69,59 @@ const fieldClass = `
 
 const labelClass = "block text-sm font-medium text-[var(--color-muted)] mb-2";
 
-export default function AuditForm({ onSubmit, isLoading }) {
-  const [businessName, setBusinessName]   = useState("");
-  const [website, setWebsite]             = useState("");
-  const [serviceArea, setServiceArea]     = useState("");
-  const [services, setServices]           = useState([]);
-  const [competitors, setCompetitors]     = useState([]);
+/** Geolocation hook — resolves city + state + ZIP via Nominatim */
+function useGeolocation(onResult, onError) {
+  const [loading, setLoading] = useState(false);
 
+  const detect = () => {
+    if (!navigator.geolocation) { onError("Not supported"); return; }
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const r = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
+          );
+          const d = await r.json();
+          const city  = d.address?.city || d.address?.town || d.address?.village || "";
+          const state = d.address?.state_code || d.address?.state || "";
+          const zip   = d.address?.postcode || "";
+          const val   = zip
+            ? `${city ? city + ", " : ""}${state} ${zip}`.trim()
+            : `${city}${state ? ", " + state : ""}`.trim();
+          onResult(val);
+        } catch { onError("Could not resolve location"); }
+        finally  { setLoading(false); }
+      },
+      (err) => {
+        setLoading(false);
+        onError(err.code === 1 ? "Permission denied" : "Detection failed");
+      },
+      { timeout: 8000 }
+    );
+  };
+
+  return { detect, loading };
+}
+
+export default function AuditForm({ onSubmit, isLoading }) {
+  const [businessName, setBusinessName] = useState("");
+  const [website,      setWebsite]      = useState("");
+  const [serviceArea,  setServiceArea]  = useState("");
+  const [services,     setServices]     = useState([]);
+  const [competitors,  setCompetitors]  = useState([]);
+  const [geoHint,      setGeoHint]      = useState("");
+
+  const { detect, loading: geoLoading } = useGeolocation(
+    (val) => { setServiceArea(val); setGeoHint("✓ Location detected — edit if needed"); },
+    (msg) => setGeoHint(msg)
+  );
+
+  // Services is now optional — only business name, website, and service area required
   const canSubmit =
     businessName.trim() &&
     website.trim() &&
     serviceArea.trim() &&
-    services.length > 0 &&
     !isLoading;
 
   const handleSubmit = (e) => {
@@ -91,7 +133,7 @@ export default function AuditForm({ onSubmit, isLoading }) {
       service_area:  serviceArea.trim(),
       services,
       competitors,
-      tier:          "free",
+      tier: "free",
     });
   };
 
@@ -128,34 +170,58 @@ export default function AuditForm({ onSubmit, isLoading }) {
           id="website"
           type="text"
           className={fieldClass}
-          placeholder="e.g. https://apexhvac.com"
+          placeholder="https://yourbusiness.com"
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
           required
         />
       </div>
 
-      {/* Service area */}
+      {/* Service area + geolocation */}
       <div>
         <label htmlFor="service-area" className={labelClass}>
           Service area <span className="text-[#00E5FF]">*</span>
         </label>
-        <input
-          id="service-area"
-          type="text"
-          className={fieldClass}
-          placeholder="e.g. Houston, TX"
-          value={serviceArea}
-          onChange={(e) => setServiceArea(e.target.value)}
-          required
-        />
+        <div className="relative">
+          <input
+            id="service-area"
+            type="text"
+            className={fieldClass + " pr-11"}
+            placeholder="City or ZIP code"
+            value={serviceArea}
+            onChange={(e) => setServiceArea(e.target.value)}
+            required
+          />
+          <button
+            type="button"
+            onClick={detect}
+            disabled={geoLoading}
+            title="Auto-detect my location"
+            className="absolute right-3 top-1/2 -translate-y-1/2
+                       text-[var(--color-muted)] hover:text-[#00E5FF] transition-colors
+                       disabled:opacity-40"
+          >
+            <svg
+              className={geoLoading ? "animate-spin" : ""}
+              width="17" height="17" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+            </svg>
+          </button>
+        </div>
+        {geoHint && (
+          <p className="mt-1.5 text-xs text-[var(--color-muted)]">{geoHint}</p>
+        )}
       </div>
 
-      {/* Services — tag input */}
+      {/* Services — now optional */}
       <div>
         <label htmlFor="services" className={labelClass}>
-          Services <span className="text-[#00E5FF]">*</span>
-          <span className="ml-2 font-normal text-xs opacity-60">Press Enter or comma to add</span>
+          Services offered
+          <span className="ml-2 font-normal text-xs opacity-50">Optional · Press Enter or comma to add</span>
         </label>
         <TagInput
           id="services"
@@ -163,13 +229,16 @@ export default function AuditForm({ onSubmit, isLoading }) {
           setTags={setServices}
           placeholder="e.g. HVAC, AC repair, heating…"
         />
+        <p className="mt-1.5 text-xs text-[var(--color-muted)] opacity-70">
+          We also detect services from your site automatically
+        </p>
       </div>
 
       {/* Competitors — optional */}
       <div>
         <label htmlFor="competitors" className={labelClass}>
           Competitors
-          <span className="ml-2 font-normal text-xs opacity-60">Optional — Press Enter or comma to add</span>
+          <span className="ml-2 font-normal text-xs opacity-50">Optional · Press Enter or comma to add</span>
         </label>
         <TagInput
           id="competitors"
@@ -187,7 +256,7 @@ export default function AuditForm({ onSubmit, isLoading }) {
         whileTap={canSubmit ? { scale: 0.98 } : {}}
         className={`w-full py-4 rounded-xl font-semibold text-sm transition-all duration-200
           ${canSubmit
-            ? "text-white hover:opacity-90 cursor-pointer"
+            ? "text-white cursor-pointer"
             : "bg-[var(--color-surface)] text-[var(--color-muted)] border border-[var(--color-border)] cursor-not-allowed"
           }`}
         style={canSubmit ? { background: "linear-gradient(to right, #00E5FF, #3D6BFF, #A742FF)" } : {}}
@@ -196,7 +265,7 @@ export default function AuditForm({ onSubmit, isLoading }) {
       </motion.button>
 
       <p className="text-center text-xs text-[var(--color-muted)]">
-        Free audit · No credit card · Results in ~60 seconds
+        ✓ Free audit &nbsp;·&nbsp; ✓ No credit card required &nbsp;·&nbsp; ✓ Results in ~60 seconds
       </p>
     </motion.form>
   );
