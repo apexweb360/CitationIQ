@@ -1,4 +1,4 @@
-import Hero from "../components/hero/Hero";
+import Hero from "../components/Hero/Hero";
 import { useNavigate } from "react-router-dom";
 
 const CYAN = "#22D3EE";
