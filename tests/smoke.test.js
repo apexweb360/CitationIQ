@@ -1,7 +1,3 @@
-import { describe, it, expect } from "vitest";
-
-describe("smoke test", () => {
-  it("runs successfully", () => {
-    expect(true).toBe(true);
-  });
-});
+// Frontend smoke tests live at frontend/src/__tests__/smoke.test.js
+// Vitest runs from the frontend/ directory and won't find this file.
+// This file is intentionally empty — do not add tests here.

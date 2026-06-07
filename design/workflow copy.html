@@ -1,0 +1,665 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .ciq-wrap {
+    font-family: 'DM Sans', sans-serif;
+    background: #040c14;
+    color: #e8edf2;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot { color: #22D3EE; }
+
+  /* Peec.ai-inspired gradient utilities */
+  .grad-text {
+    background: linear-gradient(135deg, #22D3EE 0%, #8B5CF6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .grad-border {
+    border-image: linear-gradient(135deg, #22D3EE, #8B5CF6) 1;
+  }
+
+  .nav-pill {
+    background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(139,92,246,0.12));
+    border: 0.5px solid rgba(139,92,246,0.4);
+    color: #a78bfa;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(139,92,246,0.08));
+    border: 0.5px solid rgba(139,92,246,0.35);
+    color: #a78bfa;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+  }
+
+  .pulse {
+    width: 6px; height: 6px;
+    background: linear-gradient(135deg, #22D3EE, #8B5CF6);
+    border-radius: 50%;
+    animation: blink 1.4s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: #00e5a0;
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: rgba(232,237,242,0.6);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .audit-input-wrap {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 6px 6px 6px 16px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .audit-input-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e8edf2;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+  }
+
+  .audit-input-wrap input::placeholder { color: rgba(232,237,242,0.3); }
+
+  .btn-analyze {
+    background: #00e5a0;
+    color: #040c14;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .platform-badges {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+
+  .pbadge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: rgba(232,237,242,0.6);
+  }
+
+  .pbadge i { font-size: 14px; color: rgba(232,237,242,0.4); }
+
+  .score-preview {
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 0 2rem 3rem;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .score-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(232,237,242,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .score-overall {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .score-overall span { font-size: 14px; color: rgba(232,237,242,0.3); }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .score-card {
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .score-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .score-card-name {
+    font-size: 12px;
+    color: rgba(232,237,242,0.5);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .score-card-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .score-bar-track {
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .score-bar-fill { height: 100%; border-radius: 2px; }
+
+  .score-hint {
+    font-size: 11px;
+    color: rgba(232,237,242,0.3);
+  }
+
+  .categories {
+    padding: 2rem;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(232,237,242,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 1.5rem;
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 3rem;
+  }
+
+  .cat-card {
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: border-color 0.2s;
+    cursor: default;
+  }
+
+  .cat-card:hover { border-color: rgba(0,229,160,0.2); }
+
+  .cat-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .cat-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e8edf2;
+    margin-bottom: 4px;
+  }
+
+  .cat-desc {
+    font-size: 11px;
+    color: rgba(232,237,242,0.35);
+    line-height: 1.6;
+  }
+
+  .cat-count {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #00e5a0;
+    background: rgba(0,229,160,0.08);
+    border: 0.5px solid rgba(0,229,160,0.2);
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+
+  .differentiator {
+    background: rgba(0,229,160,0.04);
+    border: 0.5px solid rgba(0,229,160,0.15);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .diff-icon {
+    font-size: 20px;
+    color: #00e5a0;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .diff-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .diff-desc {
+    font-size: 12px;
+    color: rgba(232,237,242,0.4);
+    line-height: 1.6;
+  }
+
+  .pricing {
+    padding: 2rem;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .price-card {
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .price-card.featured {
+    border-color: rgba(0,229,160,0.3);
+    background: rgba(0,229,160,0.04);
+  }
+
+  .price-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(232,237,242,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .price-featured-name { color: #00e5a0; }
+
+  .price-amount {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .price-period {
+    font-size: 11px;
+    color: rgba(232,237,242,0.3);
+    margin-bottom: 1rem;
+  }
+
+  .price-feature {
+    font-size: 12px;
+    color: rgba(232,237,242,0.5);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .price-feature i { font-size: 13px; color: #00e5a0; }
+
+  .cta-section {
+    text-align: center;
+    padding: 3rem 2rem 4rem;
+  }
+
+  .cta-section h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.5px;
+  }
+
+  .cta-section p {
+    font-size: 14px;
+    color: rgba(232,237,242,0.4);
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-cta {
+    background: #00e5a0;
+    color: #040c14;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .divider {
+    height: 0.5px;
+    background: rgba(255,255,255,0.06);
+    margin: 1rem 2rem 2rem;
+  }
+
+  .green { color: #00e5a0; }
+  .amber-c { color: #EF9F27; }
+  .red-c { color: #E24B4A; }
+</style>
+
+<div class="ciq-wrap">
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">CitationIQ.ai, an AI visibility audit platform that scores how AI systems cite your website</h2>
+
+  <nav class="nav">
+    <div class="logo">CitationIQ<span class="logo-dot">.</span>ai</div>
+    <button class="nav-pill" onclick="sendPrompt('Build the CitationIQ.ai landing page in Vercel')">Start for free ↗</button>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge"><div class="pulse"></div> Live AI citation testing across 5 platforms</div>
+    <h1>Does AI actually<br><em>cite your business?</em></h1>
+    <p>CitationIQ runs 80+ signal checks across schema, entity authority, crawlability, content structure, and live AI platforms, then tells you exactly what to fix.</p>
+    <div class="audit-input-wrap">
+      <i class="ti ti-world" aria-hidden="true" style="font-size:18px; color:rgba(232,237,242,0.3);"></i>
+      <input type="text" placeholder="yourdomain.com" id="domain-input" />
+      <button class="btn-analyze" onclick="sendPrompt('Run a CitationIQ audit for ' + document.getElementById('domain-input').value)">Analyze ↗</button>
+    </div>
+    <div class="platform-badges">
+      <div class="pbadge"><i class="ti ti-robot" aria-hidden="true"></i> ChatGPT</div>
+      <div class="pbadge"><i class="ti ti-robot" aria-hidden="true"></i> Claude</div>
+      <div class="pbadge"><i class="ti ti-robot" aria-hidden="true"></i> Gemini</div>
+      <div class="pbadge"><i class="ti ti-robot" aria-hidden="true"></i> Perplexity</div>
+      <div class="pbadge"><i class="ti ti-robot" aria-hidden="true"></i> Grok</div>
+    </div>
+  </div>
+
+  <div class="score-preview">
+    <div class="score-header">
+      <div>
+        <div class="score-label">Sample audit, apexweb360.com</div>
+      </div>
+      <div class="score-overall">61 <span>/ 100</span></div>
+    </div>
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="score-card-top">
+          <span class="score-card-name">AI Visibility</span>
+          <span class="score-card-val red-c">36</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:36%; background:#E24B4A;"></div></div>
+        <div class="score-hint">5 schemas missing, +45 pts to gain</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-top">
+          <span class="score-card-name">Entity Authority</span>
+          <span class="score-card-val amber-c">52</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:52%; background:#EF9F27;"></div></div>
+        <div class="score-hint">No knowledge graph entry, +28 pts</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-top">
+          <span class="score-card-name">Crawlability</span>
+          <span class="score-card-val green">88</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:88%; background:#00e5a0;"></div></div>
+        <div class="score-hint">LLMs.txt present, bots unblocked</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-top">
+          <span class="score-card-name">Citation Readiness</span>
+          <span class="score-card-val amber-c">59</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:59%; background:#EF9F27;"></div></div>
+        <div class="score-hint">FAQ missing, no declarative summaries</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-top">
+          <span class="score-card-name">Trust & Authority</span>
+          <span class="score-card-val red-c">31</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:31%; background:#E24B4A;"></div></div>
+        <div class="score-hint">No surfaced reviews, +30 pts</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-top">
+          <span class="score-card-name">Live AI Test</span>
+          <span class="score-card-val red-c">0 / 5</span>
+        </div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:5%; background:#E24B4A;"></div></div>
+        <div class="score-hint">Not cited on any platform tested</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="categories">
+    <div class="section-label">10 audit categories, 80+ signals</div>
+    <div class="cat-grid">
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(0,229,160,0.1);"><i class="ti ti-code" aria-hidden="true" style="color:#00e5a0;"></i></div>
+        <div class="cat-title">Schema & Structured Data</div>
+        <div class="cat-desc">Organization, FAQ, HowTo, Article, LocalBusiness, and 8 more schema types checked</div>
+        <div class="cat-count">12 checks</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(55,138,221,0.1);"><i class="ti ti-building" aria-hidden="true" style="color:#378ADD;"></i></div>
+        <div class="cat-title">Entity Identity</div>
+        <div class="cat-desc">NAP consistency, knowledge graph presence, Wikipedia/Wikidata, entity disambiguation</div>
+        <div class="cat-count">8 checks</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(239,159,39,0.1);"><i class="ti ti-robot" aria-hidden="true" style="color:#EF9F27;"></i></div>
+        <div class="cat-title">AI Crawlability</div>
+        <div class="cat-desc">GPTBot, ClaudeBot, PerplexityBot access, LLMs.txt presence, sitemap freshness</div>
+        <div class="cat-count">7 checks</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(0,229,160,0.1);"><i class="ti ti-file-text" aria-hidden="true" style="color:#00e5a0;"></i></div>
+        <div class="cat-title">Content Signals</div>
+        <div class="cat-desc">FAQ sections, Q&A format, definition paragraphs, author bios, E-E-A-T signals</div>
+        <div class="cat-count">10 checks</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(212,83,126,0.1);"><i class="ti ti-shield-check" aria-hidden="true" style="color:#D4537E;"></i></div>
+        <div class="cat-title">Authority & Trust</div>
+        <div class="cat-desc">Backlink quality, .gov/.edu citations, review platform presence, brand mentions</div>
+        <div class="cat-count">9 checks</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(55,138,221,0.1);"><i class="ti ti-settings" aria-hidden="true" style="color:#378ADD;"></i></div>
+        <div class="cat-title">Technical SEO</div>
+        <div class="cat-desc">Meta tags, OG, canonicals, page speed, mobile-ready, HTTPS, robots.txt</div>
+        <div class="cat-count">11 checks</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(0,229,160,0.1);"><i class="ti ti-quote" aria-hidden="true" style="color:#00e5a0;"></i></div>
+        <div class="cat-title">Citation Readiness</div>
+        <div class="cat-desc">Declarative sentences, attributed data, quotable summaries, jargon density score</div>
+        <div class="cat-count">8 checks</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(239,159,39,0.1);"><i class="ti ti-chart-bar" aria-hidden="true" style="color:#EF9F27;"></i></div>
+        <div class="cat-title">Competitor Benchmarking</div>
+        <div class="cat-desc">Score your site vs. 3 direct competitors across all 10 categories simultaneously</div>
+        <div class="cat-count">Pro feature</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(226,75,74,0.1);"><i class="ti ti-message-circle" aria-hidden="true" style="color:#E24B4A;"></i></div>
+        <div class="cat-title">Live AI Testing</div>
+        <div class="cat-desc">Actually queries ChatGPT, Perplexity, Gemini, Grok, Copilot with brand questions</div>
+        <div class="cat-count">True differentiator</div>
+      </div>
+      <div class="cat-card">
+        <div class="cat-icon" style="background:rgba(55,138,221,0.1);"><i class="ti ti-trending-up" aria-hidden="true" style="color:#378ADD;"></i></div>
+        <div class="cat-title">Historical Tracking</div>
+        <div class="cat-desc">Monthly score snapshots showing citation growth after implementing fixes</div>
+        <div class="cat-count">Agency feature</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Why CitationIQ wins</div>
+    <div class="differentiator">
+      <i class="ti ti-live-view diff-icon" aria-hidden="true"></i>
+      <div>
+        <div class="diff-title">We don't guess, we ask</div>
+        <div class="diff-desc">Competitors score on-site signals and call it AI visibility. We actually query live AI platforms and report whether your brand is cited, mentioned, or invisible.</div>
+      </div>
+    </div>
+    <div class="differentiator">
+      <i class="ti ti-users diff-icon" aria-hidden="true"></i>
+      <div>
+        <div class="diff-title">Built for agencies</div>
+        <div class="diff-desc">White-label reporting, bulk client audits, and branded PDF exports. Your clients see the results, not your tools.</div>
+      </div>
+    </div>
+    <div class="differentiator">
+      <i class="ti ti-refresh diff-icon" aria-hidden="true"></i>
+      <div>
+        <div class="diff-title">Citation monitoring, not a one-time report</div>
+        <div class="diff-desc">AI citation behavior changes monthly. CitationIQ runs on a schedule and alerts you when your visibility drops or a competitor gains ground.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pricing">
+    <div class="section-label">Pricing</div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amount">$0</div>
+        <div class="price-period">one-time audit</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> 40 signal checks</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Overall score + summary</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Top 5 fix recommendations</div>
+      </div>
+      <div class="price-card featured">
+        <div class="price-name price-featured-name">Pro</div>
+        <div class="price-amount">$49</div>
+        <div class="price-period">per month</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> 80+ signal checks</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Live AI platform testing</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Competitor benchmarking</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Monthly tracking</div>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Agency</div>
+        <div class="price-amount">$199</div>
+        <div class="price-period">per month</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Up to 25 client sites</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> White-label PDF reports</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Branded client dashboard</div>
+        <div class="price-feature"><i class="ti ti-check" aria-hidden="true"></i> Priority support</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>Run your free audit now</h2>
+    <p>No signup required, results in 60 seconds</p>
+    <button class="btn-cta" onclick="sendPrompt('I want to start building CitationIQ.ai in Vercel')">Get your AI visibility score ↗</button>
+  </div>
+</div>

@@ -1,3 +1,20 @@
-# ApexWeb360 Local Pointer
-# Refer to the instructions in ../CLAUDE.md for all global operational standards.
-# Rules in this project's CLAUDE.md act as local overrides or additions.
+# CitationIQ — Cursor IDE Rules
+# Full engineering context lives in CLAUDE.md. Key rules repeated here for Cursor:
+
+## Project
+B2B SaaS — AI visibility auditing for local businesses.
+Stack: FastAPI + React + Supabase + Stripe. Deployed on Vercel.
+
+## Hard Rules
+- Business logic in `backend/services/` only. Routes are thin orchestrators.
+- All AI API calls in `backend/services/ai_engines/` — one file per engine.
+- All frontend fetch() calls in `frontend/src/services/` — never in components.
+- Framer Motion for all animated UI elements.
+- Import `settings` from `config.py`. Never call `os.getenv()` directly.
+
+## Naming
+- Routes: `backend/routes/<resource>.py`
+- Services: `backend/services/<resource>_service.py`
+- Models: `backend/models/<resource>.py`
+- Frontend pages: `frontend/src/pages/<Page>.jsx`
+- Frontend components: `frontend/src/components/<section>/<Component>.jsx`
