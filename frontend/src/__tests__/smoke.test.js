@@ -1,4 +1,4 @@
-// frontend/src/__tests__/smoke.test.js — CitationIQ Frontend Smoke Tests
+// frontend/src/__tests__/smoke.test.js — Stratena Frontend Smoke Tests
 // Run: cd frontend && npm test
 
 import { describe, it, expect } from "vitest";

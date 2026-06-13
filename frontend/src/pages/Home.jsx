@@ -202,7 +202,7 @@ const diffs = [
   {
     icon: "🔄",
     title: "Citation monitoring, not a one-time report",
-    desc: "AI citation behavior changes monthly. CitationIQ runs on a schedule and alerts you when your visibility drops or a competitor gains ground.",
+    desc: "AI citation behavior changes monthly. Stratena runs on a schedule and alerts you when your visibility drops or a competitor gains ground.",
   },
 ];
 
@@ -210,7 +210,7 @@ function Differentiators() {
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 2rem 3rem" }}>
       <p style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(245,247,250,0.35)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "1.5rem" }}>
-        Why CitationIQ wins
+        Why Stratena wins
       </p>
       {diffs.map((d) => (
         <div key={d.title} style={{

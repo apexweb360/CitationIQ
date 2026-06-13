@@ -1,9 +1,9 @@
-# CitationIQ — Local Engineering Context
+# Stratena — Local Engineering Context
 # This project adheres to the ApexWeb360 Global Engineering Standards
 # defined in ~/CODING/CLAUDE.md. Rules defined here act as local overrides or additions.
 
 ## Project Overview
-- **Name:** CitationIQ
+- **Name:** Stratena
 - **Purpose:** B2B SaaS platform for automated AI visibility auditing and competitor benchmarking. Measures how often a business is cited by AI engines (ChatGPT, Gemini, Perplexity, Claude, Grok) and scores visibility against competitors.
 - **Stack:** FastAPI + React + Supabase + Stripe
 - **Business Model:** Freemium audit → paid reports → monthly monitoring subscription

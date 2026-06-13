@@ -59,7 +59,7 @@ const MENUS = {
         { icon: "compass", label: "GEO Guides", desc: "Improve your AI citation rate",     to: "/guides" },
       ]},
       { heading: "Use", items: [
-        { icon: "users", label: "Case Studies",  desc: "How agencies win with CitationIQ", to: "/cases" },
+        { icon: "users", label: "Case Studies",  desc: "How agencies win with Stratena", to: "/cases" },
         { icon: "book",  label: "Documentation", desc: "API docs and integration guides",  to: "/docs"  },
       ]},
     ],
@@ -238,7 +238,7 @@ export default function Navbar({ onReset, showReset = false }) {
           {/* Logo → Home */}
           <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
             <img
-              src={CIQ_ASSETS.logoFull} alt="CitationIQ" draggable={false}
+              src={CIQ_ASSETS.logoFull} alt="Stratena" draggable={false}
               style={{ height: 50, width: "auto", display: "block", objectFit: "contain" }}
               onError={(e) => {
                 e.target.style.display = "none";
@@ -373,7 +373,7 @@ export default function Navbar({ onReset, showReset = false }) {
           {[
             { label: "Blog",          desc: "GEO news, tactics and trends",    to: "/blog"   },
             { label: "GEO Guides",    desc: "Improve your AI citation rate",   to: "/guides" },
-            { label: "Case Studies",  desc: "How agencies win with CitationIQ",to: "/cases"  },
+            { label: "Case Studies",  desc: "How agencies win with Stratena",to: "/cases"  },
             { label: "Documentation", desc: "API docs and integration guides", to: "/docs"   },
           ].map((item) => (
             <Link key={item.label} to={item.to} onClick={closeAll} className="ciq-mob-item"

@@ -281,7 +281,7 @@ export default function AIChatMock() {
                         Your firm isn't appearing in AI answers
                       </p>
                       <p className="text-xs mt-0.5 leading-snug" style={{ color: "rgba(252,165,165,0.55)" }}>
-                        CitationIQ detected 0 / 5 AI platforms cite your business
+                        Stratena detected 0 / 5 AI platforms cite your business
                       </p>
                     </div>
                   </motion.div>

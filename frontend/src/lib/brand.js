@@ -1,61 +1,65 @@
 /**
- * Code CIQ — CitationIQ Brand System
+ * Stratena — Brand System
  * Source of truth for asset paths, colors, and gradients.
- * Import into components: import { CIQ_ASSETS, CIQ_GRADIENT } from '@/lib/brand'
+ * Import into components: import { STRATENA_ASSETS, STRATENA_GRADIENT } from '@/lib/brand'
  */
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
 
-export const CIQ_COLORS = {
+export const STRATENA_COLORS = {
   background:    '#000000',
   white:         '#FFFFFF',
   gradientCyan:  '#00E5FF',
   gradientBlue:  '#3D6BFF',
   gradientPurple:'#A742FF',
-  taglineKnow:   '#A8F0FF',   // "KNOW."
-  taglineOutrank:'#A742FF',   // "OUTRANK."
+  taglineKnow:   '#A8F0FF',
+  taglineWin:    '#A742FF',
 }
 
 // ─── Gradient ─────────────────────────────────────────────────────────────────
 
 /** CSS gradient string — always L→R, never reversed */
-export const CIQ_GRADIENT =
-  `linear-gradient(to right, ${CIQ_COLORS.gradientCyan}, ${CIQ_COLORS.gradientBlue}, ${CIQ_COLORS.gradientPurple})`
+export const STRATENA_GRADIENT =
+  `linear-gradient(to right, ${STRATENA_COLORS.gradientCyan}, ${STRATENA_COLORS.gradientBlue}, ${STRATENA_COLORS.gradientPurple})`
 
 // ─── Asset Paths (all relative to /public, served at root by Vite) ───────────
 
-export const CIQ_ASSETS = {
-  // Primary logo — full wordmark + tagline (PNG, drop SVG here when ready)
-  logoFull:       '/brand/ciq-full.png',         // CIQ-FULL: "CitationIQ — Know. Compare. Outrank."
+export const STRATENA_ASSETS = {
+  // Primary logo — full wordmark
+  logoFull:       '/brand/stratena-full.png',
 
-  // Icon-only mark (C + white IQ)
-  icon:           '/brand/ciq-icon.png',         // CIQ-ICON
-  iconSvg:        '/brand/ciq-icon.svg',         // SVG version (same mark)
+  // Icon-only mark
+  icon:           '/brand/stratena-icon.png',
+  iconSvg:        '/brand/stratena-icon.svg',
 
-  // Placeholder paths — drop files here when ready
-  faviconC:       '/brand/ciq-fav-c.svg',        // CIQ-FAV-C: gradient C only
-  faviconIQ:      '/brand/ciq-fav-iq.svg',       // CIQ-FAV-IQ: gradient IQ only
-  appleTouch:     '/brand/ciq-apple-touch.png',  // 180×180
+  // Favicons
+  faviconSvg:     '/brand/stratena-fav.svg',
+  favicon32:      '/brand/stratena-fav-32.png',
+  appleTouch:     '/brand/stratena-apple-touch.png',
 
   // OG / social sharing
-  ogImage:        '/brand/ciq-og.jpg',            // 1200×630
+  ogImage:        '/brand/stratena-og.png',
 
   // Social exports
   social: {
-    instagram:    '/brand/social/ciq-ig.png',    // 1080×1080
-    linkedin:     '/brand/social/ciq-li.png',    // 1200×627
-    tiktok:       '/brand/social/ciq-tt.png',    // 1080×1080
-    facebook:     '/brand/social/ciq-fb.png',    // 1200×630
-    x:            '/brand/social/ciq-x.png',     // 400×400
+    instagram:    '/brand/social/stratena-ig.png',
+    linkedin:     '/brand/social/stratena-li.png',
+    tiktok:       '/brand/social/stratena-tt.png',
+    facebook:     '/brand/social/stratena-fb.png',
+    x:            '/brand/social/stratena-x.png',
   },
 }
 
+// ─── Legacy aliases (remove once all imports are updated) ────────────────────
+export const CIQ_ASSETS   = STRATENA_ASSETS
+export const CIQ_GRADIENT = STRATENA_GRADIENT
+export const CIQ_COLORS   = STRATENA_COLORS
+
 // ─── Usage guide ─────────────────────────────────────────────────────────────
-// In a component:
 //
-//   import { CIQ_ASSETS } from '../lib/brand'
+//   import { STRATENA_ASSETS } from '../lib/brand'
 //
-//   <img src={CIQ_ASSETS.logoFull} alt="CitationIQ" height={40} />
-//   <img src={CIQ_ASSETS.icon}     alt="CitationIQ" width={32} />
+//   <img src={STRATENA_ASSETS.logoFull} alt="Stratena" height={40} />
+//   <img src={STRATENA_ASSETS.icon}     alt="Stratena" width={32} />
 //
-// For gradient text, add className="ciq-gradient-text" (defined in globals.css)
+// For gradient text, add className="stratena-gradient-text" (defined in globals.css)

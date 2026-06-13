@@ -1,4 +1,4 @@
-# CitationIQ Design References
+# Stratena Design References
 
 ## Inspiration Sites
 
@@ -12,7 +12,7 @@
 4. Social proof logos strip (brands + agencies)
 5. Feature walkthrough — tabbed or scroll-triggered sections with screenshots:
    - "Set up [X]" → "Use Data" → "Add Competitors" → "Choose Models" → "Find Sources" → "Act on Insights"
-6. Metrics explainer (3-column: Visibility / Position / Sentiment → CitationIQ: Score / Rank / Gap)
+6. Metrics explainer (3-column: Visibility / Position / Sentiment → Stratena: Score / Rank / Gap)
 7. Reports / exports section
 8. Testimonials carousel
 9. FAQ accordion
@@ -21,7 +21,7 @@
 **Gradient palette (from peec.ai hero):**
 - Primary gradient: cyan → purple → `linear-gradient(135deg, #22D3EE 0%, #8B5CF6 100%)`
 - Used on: headline accent words, CTA buttons, badge borders, score highlights
-- Background stays very dark: #040c14 (keep CitationIQ's existing bg)
+- Background stays very dark: #040c14 (keep Stratena's existing bg)
 - Text stays: #e8edf2 (keep existing)
 
 **Typography feel:** Large, bold, heavy-weight hero headlines. Gradient on key noun/verb. Clean sans-serif body.
@@ -35,7 +35,7 @@
 
 ---
 
-## CitationIQ Workflow HTML
+## Stratena Workflow HTML
 **File:** `design/workflow.html`
 **Status:** Base layout complete. Gradient colors to be applied.
 

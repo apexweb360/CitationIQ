@@ -1,4 +1,4 @@
-# CitationIQ
+# Stratena
 
 AI Visibility Intelligence for Local Businesses.
 

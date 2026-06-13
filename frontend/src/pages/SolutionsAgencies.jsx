@@ -53,7 +53,7 @@ export default function SolutionsAgencies() {
           </h1>
 
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.55)", lineHeight: 1.65, margin: "0 auto 0", maxWidth: 540 }}>
-            Stop manually checking AI tools for every client. CitationIQ gives your agency a single
+            Stop manually checking AI tools for every client. Stratena gives your agency a single
             dashboard to track, report, and improve AI visibility across your entire book of business.
           </p>
         </div>
