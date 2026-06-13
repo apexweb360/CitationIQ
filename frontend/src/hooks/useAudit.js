@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
+import { submitAudit, pollAuditStatus } from "../services/auditService";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "/api/v1";
 const POLL_INTERVAL_MS = 2000;
 
 /**
@@ -30,9 +30,7 @@ export function useAudit() {
 
   const poll = useCallback(async (auditId) => {
     try {
-      const res = await fetch(`${API_BASE}/audit/${auditId}`);
-      if (!res.ok) throw new Error(`Poll failed: ${res.status}`);
-      const data = await res.json();
+      const data = await pollAuditStatus(auditId);
 
       setProgress(data.progress ?? 0);
 
@@ -59,18 +57,7 @@ export function useAudit() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/audit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.detail ?? `Request failed: ${res.status}`);
-      }
-
-      const { audit_id } = await res.json();
+      const { audit_id } = await submitAudit(formData);
       setPhase("running");
 
       // Start polling immediately, then every POLL_INTERVAL_MS
@@ -92,3 +79,4 @@ export function useAudit() {
 
   return { submit, reset, phase, progress, result, error };
 }
+

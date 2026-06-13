@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { reverseGeocode } from "../../services/geoService";
 
 /* ── Light-card field styles ─────────────────────────────── */
 const fieldClass = [
@@ -84,19 +85,13 @@ function useGeolocation(onResult, onError) {
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          const r = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
-          );
-          const d = await r.json();
-          const city  = d.address?.city || d.address?.town || d.address?.village || "";
-          const state = d.address?.state_code || d.address?.state || "";
-          const zip   = d.address?.postcode || "";
-          const val   = zip
-            ? `${city ? city + ", " : ""}${state} ${zip}`.trim()
-            : `${city}${state ? ", " + state : ""}`.trim();
+          const val = await reverseGeocode(coords.latitude, coords.longitude);
           onResult(val);
-        } catch { onError("Could not resolve location"); }
-        finally  { setLoading(false); }
+        } catch {
+          onError("Could not resolve location");
+        } finally {
+          setLoading(false);
+        }
       },
       (err) => {
         setLoading(false);
@@ -108,6 +103,7 @@ function useGeolocation(onResult, onError) {
 
   return { detect, loading };
 }
+
 
 /* ── Optional badge ──────────────────────────────────────── */
 function OptBadge() {

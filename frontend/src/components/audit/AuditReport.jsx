@@ -17,7 +17,7 @@ function scoreLabel(score) {
 /* ── sub-components ──────────────────────────────────────── */
 
 function ScoreRing({ score, size = 120 }) {
-  const r   = (size - 16) / 2;
+  const r = (size - 16) / 2;
   const circ = 2 * Math.PI * r;
   const fill = (score / 100) * circ;
   const color = scoreColor(score);
@@ -26,7 +26,7 @@ function ScoreRing({ score, size = 120 }) {
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none"
-                stroke="rgba(255,255,255,0.06)" strokeWidth={8} />
+          stroke="rgba(255,255,255,0.06)" strokeWidth={8} />
         <motion.circle
           cx={size / 2} cy={size / 2} r={r} fill="none"
           stroke={color} strokeWidth={8}
@@ -90,7 +90,7 @@ function Section({ title, children }) {
 function Pill({ text, variant = "default" }) {
   const variants = {
     default: "bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-muted)]",
-    action:  "border-[rgba(0,229,255,0.3)] text-[#00E5FF]",
+    action: "border-[rgba(0,229,255,0.3)] text-[#00E5FF]",
     missing: "bg-red-500/10 border-red-500/30 text-red-400",
   };
   return (

@@ -5,11 +5,11 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from models.audit import AuditRequest, AuditResult, AuditStatusResponse
 from services import audit_service
+from utils import db
+from utils.logger import get_logger
 
+logger = get_logger(__name__)
 router = APIRouter()
-
-# In-memory job store for MVP — replace with Supabase in Phase 2
-_jobs: dict[str, AuditStatusResponse] = {}
 
 
 @router.post("/audit", response_model=AuditStatusResponse, status_code=202)
@@ -22,33 +22,46 @@ async def submit_audit(request: AuditRequest, background_tasks: BackgroundTasks)
     audit_id = str(uuid.uuid4())
 
     # Create pending entry
-    _jobs[audit_id] = AuditStatusResponse(
+    job = AuditStatusResponse(
         audit_id=audit_id,
         status="pending",
         progress=0,
     )
+    db.save_job(audit_id, job)
 
     background_tasks.add_task(_run_audit_job, audit_id, request)
-    return _jobs[audit_id]
+    return job
 
 
 @router.get("/audit/{audit_id}", response_model=AuditStatusResponse)
 async def get_audit_status(audit_id: str):
     """Poll for audit progress and results."""
-    if audit_id not in _jobs:
+    job = db.get_job(audit_id)
+    if job is None:
         raise HTTPException(status_code=404, detail="Audit not found")
-    return _jobs[audit_id]
+    return job
 
 
 async def _run_audit_job(audit_id: str, request: AuditRequest):
     """Background task: runs the audit and updates job store."""
-    _jobs[audit_id].status = "running"
-    _jobs[audit_id].progress = 10
+    job = db.get_job(audit_id)
+    if not job:
+        logger.error(f"Cannot run audit job {audit_id}: Job not found in storage.")
+        return
+
+    job.status = "running"
+    job.progress = 10
+    db.save_job(audit_id, job)
+
     try:
         result = await audit_service.run_audit(request)
-        _jobs[audit_id].status = "complete"
-        _jobs[audit_id].progress = 100
-        _jobs[audit_id].result = result
+        job.status = "complete"
+        job.progress = 100
+        job.result = result
+        db.save_job(audit_id, job)
     except Exception as e:
-        _jobs[audit_id].status = "failed"
-        _jobs[audit_id].progress = 0
+        logger.exception(f"Background audit job failed for audit_id {audit_id}: {e}")
+        job.status = "failed"
+        job.progress = 0
+        db.save_job(audit_id, job)
+

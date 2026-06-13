@@ -14,6 +14,7 @@
 - **Reports:** Credit-score-style output with competitor benchmarking and recommended actions
 - **Frontend:** React SPA — audit intake form, score dashboard, report view
 - **Backend:** FastAPI — thin orchestrator, thick services pattern
+- **Database & Storage:** Hybrid persistence layer (`backend/utils/db.py`). Uses Supabase table `audits` if API keys are configured, otherwise falls back to a thread-safe local in-memory store.
 
 ## Local Overrides
 None — all global standards from `~/CODING/CLAUDE.md` apply as-is.
@@ -21,7 +22,12 @@ None — all global standards from `~/CODING/CLAUDE.md` apply as-is.
 ## Project-Specific Notes
 - Routes live in `backend/routes/`, services in `backend/services/`, no exceptions.
 - Frontend fetch calls go in `frontend/src/services/` only.
+- Geolocation API calls must use `frontend/src/services/geoService.js` only.
 - Framer Motion required for all animated UI elements.
 - All AI API calls live in `backend/services/ai_engines/` — one module per engine.
+- AI clients in `backend/services/ai_engines/` must be lazy-initialized at query time.
+- Standardized logging (`from utils.logger import get_logger`) must be used inside AI engine exception handlers to log tracebacks instead of failing silently.
+- Audit status updates and reads must query the hybrid storage manager (`backend/utils/db.py`).
 - Prompt templates live in `backend/services/prompts.py`.
 - Scoring logic lives in `backend/services/scoring.py`.
+
