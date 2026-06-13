@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CIQ_ASSETS } from "../../lib/brand";
+import { STRATENA_ASSETS } from "../../lib/brand";
 
 /* ─── Brand tokens ───────────────────────────────────────────────────────────── */
 const CYAN   = "#00E5FF";
@@ -238,7 +238,7 @@ export default function Navbar({ onReset, showReset = false }) {
           {/* Logo → Home */}
           <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
             <img
-              src={CIQ_ASSETS.logoFull} alt="Stratena" draggable={false}
+              src={STRATENA_ASSETS.logoFull} alt="Stratena" draggable={false}
               style={{ height: 50, width: "auto", display: "block", objectFit: "contain" }}
               onError={(e) => {
                 e.target.style.display = "none";
@@ -247,7 +247,7 @@ export default function Navbar({ onReset, showReset = false }) {
             />
             {/* Fallback */}
             <span style={{ display: "none", alignItems: "center", gap: 7, fontSize: 17, fontWeight: 700, letterSpacing: "-0.4px", color: "#fff" }}>
-              <img src={CIQ_ASSETS.iconSvg} alt="" width={28} height={28} style={{ width: 28, height: 28, borderRadius: 7 }} onError={(e) => { e.target.style.display = "none"; }} />
+              <img src={STRATENA_ASSETS.iconSvg} alt="" width={28} height={28} style={{ width: 28, height: 28, borderRadius: 7 }} onError={(e) => { e.target.style.display = "none"; }} />
               Citation<span style={{ background: GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>IQ</span>
             </span>
           </Link>
